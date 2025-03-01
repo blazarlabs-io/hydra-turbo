@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "~/src/features/authentication/context/auth-provider";
 import { useRouter } from "next/navigation";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

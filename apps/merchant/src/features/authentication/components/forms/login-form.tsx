@@ -1,9 +1,9 @@
 "use client";
 
-import { loginFormSchema } from "@/data/form-schemas";
+import { loginFormSchema } from "~/src/features/authentication/data/form-schemas";
 import { toast } from "@repo/ui/hooks/use-toast";
 import { auth } from "@/lib/firebase/client";
-import { firebaseAuthErrors } from "@/utils/firebaseAuthErrors";
+import { firebaseAuthErrors } from "~/src/features/authentication/utils/firebase-auth-errors";
 import { cn } from "@/utils/shadcn";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@repo/ui/components/ui/button";
 import { Form } from "@repo/ui/components/ui/form";
-import { AuthInputField } from "./fields/auth-input-field";
+import { AuthInputField } from "../fields/auth-input-field";
 import { PasswordInputField } from "./password-input-field";
 import {
   Tooltip,

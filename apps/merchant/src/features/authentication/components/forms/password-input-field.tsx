@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { loginFormSchema, signUpFormSchema } from "@/data/form-schemas";
+import {
+  loginFormSchema,
+  signUpFormSchema,
+} from "~/src/features/authentication/data/form-schemas";
 import type { Control, FieldPath } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -15,14 +18,17 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 export interface PasswordInputFieldProps {
-  name: FieldPath<z.infer<typeof signUpFormSchema>>;
+  name: FieldPath<z.infer<typeof signUpFormSchema | typeof loginFormSchema>>;
   label?: string;
   placeholder: string;
   description?: string;
-  formControl: Control<z.infer<typeof signUpFormSchema>>;
+  formControl: Control<
+    z.infer<typeof signUpFormSchema | typeof loginFormSchema>,
+    any
+  >;
 }
 
-export const SignUpPasswordInputField: React.FC<PasswordInputFieldProps> = ({
+export const PasswordInputField: React.FC<PasswordInputFieldProps> = ({
   name,
   label,
   placeholder,
@@ -48,7 +54,7 @@ export const SignUpPasswordInputField: React.FC<PasswordInputFieldProps> = ({
                 type={passwordVisibility ? "text" : "password"}
                 placeholder={placeholder}
                 {...field}
-                className="bg-transparent px-4 py-3 text-sm shadow-none"
+                className="border-0 bg-transparent text-sm shadow-none"
               />
               <button
                 type="button"

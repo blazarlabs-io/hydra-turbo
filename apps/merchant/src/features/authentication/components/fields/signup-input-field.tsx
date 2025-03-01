@@ -3,7 +3,7 @@ import {
   forgotPasswordSchema,
   loginFormSchema,
   signUpFormSchema,
-} from "@/data/form-schemas";
+} from "~/src/features/authentication/data/form-schemas";
 import type { Control, FieldPath } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -17,18 +17,15 @@ import {
 import { Input } from "@repo/ui/components/ui/input";
 
 export interface AuthInputFieldProps {
-  name: FieldPath<z.infer<typeof signUpFormSchema | typeof loginFormSchema>>;
+  name: FieldPath<z.infer<typeof signUpFormSchema>>;
   label?: string;
   placeholder: string;
   description?: string;
   inputType?: string;
-  formControl: Control<
-    z.infer<typeof signUpFormSchema | typeof loginFormSchema>,
-    any
-  >;
+  formControl: Control<z.infer<typeof signUpFormSchema>>;
 }
 
-export const AuthInputField: React.FC<AuthInputFieldProps> = ({
+export const SignUpInputField: React.FC<AuthInputFieldProps> = ({
   name,
   label,
   placeholder,

@@ -9,7 +9,7 @@ import {
 import { Button } from "@repo/ui/components/ui/button";
 import Link from "next/link";
 import { Logo } from "../assets/logo";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "~/src/features/authentication/context/auth-provider";
 import { Separator } from "@repo/ui/components/ui/separator";
 import { LocaleSwitcher } from "@/components/widgets/locale-switcher/locale-switcher";
 

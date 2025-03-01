@@ -9,7 +9,7 @@ import {
 } from "@repo/ui/components/ui/card";
 import { PageHeader } from "../layouts/page-header";
 
-import { useAuth } from "@/context/auth";
+import { useAuth } from "~/src/features/authentication/context/auth-provider";
 import { Button } from "@repo/ui/components/ui/button";
 import { Separator } from "@repo/ui/components/ui/separator";
 import { Ada } from "../icons/ada";

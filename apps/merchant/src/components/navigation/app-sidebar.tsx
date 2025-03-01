@@ -1,7 +1,7 @@
 "use client";
 
 import { Logo } from "@/components/assets/logo";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "~/src/features/authentication/context/auth-provider";
 import { auth } from "@/lib/firebase/client";
 import {
   Avatar,

@@ -1,6 +1,6 @@
 "use client";
 
-import { signUpFormSchema } from "@/data/form-schemas";
+import { signUpFormSchema } from "~/src/features/authentication/data/form-schemas";
 import { auth } from "@/lib/firebase/client";
 import { cn } from "@/utils/shadcn";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,7 +18,7 @@ import { Control, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@repo/ui/components/ui/button";
 import { Form } from "@repo/ui/components/ui/form";
-import { SignUpInputField } from "./fields/signup-input-field";
+import { SignUpInputField } from "../fields/signup-input-field";
 import { SignUpPasswordInputField } from "./signup-password-input-field";
 import {
   AlertDialog,
