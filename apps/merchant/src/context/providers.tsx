@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthProvider } from "./auth";
+import { AuthProvider } from "../features/authentication/context/auth-provider";
 import { APIProvider } from "@vis.gl/react-google-maps";
 import { TransactionsProvider } from "./transactions";
 import { CmsProvider } from "./cms";

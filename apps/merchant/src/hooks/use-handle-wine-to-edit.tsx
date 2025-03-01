@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "~/src/features/authentication/context/auth-provider";
 import { useWinery } from "@/context/winery";
 import { DbResponse, Wine } from "@/types/db";
 import { db } from "@/lib/firebase/services/db";
