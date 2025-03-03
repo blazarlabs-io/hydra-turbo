@@ -2,20 +2,23 @@
 
 import { auth } from "@/lib/firebase/client";
 import { User, onAuthStateChanged, signOut } from "firebase/auth";
-import { useRouter, usePathname } from "next/navigation";
+import { deleteCookie, setCookie } from "cookies-next";
 
 // LIBS
 import { createContext, useContext, useEffect, useState } from "react";
+import { AUTH_COOKIE } from "../data";
 
-export interface AuthContextInterface {
+interface AuthContextInterface {
   user: User | null;
+  setUserHandler: (user: User) => Promise<void>;
+  singOutUserHandler: () => Promise<void>;
 }
 
-const contextInitialData: AuthContextInterface = {
+const AuthContext = createContext<AuthContextInterface>({
   user: null,
-};
-
-const AuthContext = createContext(contextInitialData);
+  setUserHandler: async () => {},
+  singOutUserHandler: async () => {},
+});
 
 export const useAuth = (): AuthContextInterface => {
   const context = useContext<AuthContextInterface>(AuthContext);
@@ -30,28 +33,28 @@ export const useAuth = (): AuthContextInterface => {
 export const AuthProvider = ({
   children,
 }: React.PropsWithChildren): JSX.Element => {
-  const router = useRouter();
-  const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
+
+  const setUserHandler = async (user: User) => {
+    setUser(user);
+    const idToken = await user.getIdToken();
+    setCookie(AUTH_COOKIE, idToken, {
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+  };
+
+  const singOutUserHandler = async () => {
+    setUser(null);
+    signOut(auth);
+    await deleteCookie(AUTH_COOKIE);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log(user);
       if (user) {
         setUser(user);
-        router.push("/dashboard/home");
-        if (
-          user.emailVerified &&
-          !pathname.startsWith("/explore") &&
-          !pathname.startsWith("/legal")
-        ) {
-          // router.push("/dashboard/home");
-        } else if (
-          !user.emailVerified &&
-          !pathname.startsWith("/confirm-email")
-        ) {
-          // router.push("/verify-email");
-        }
       } else {
         setUser(null);
       }
@@ -62,7 +65,7 @@ export const AuthProvider = ({
     };
   }, []);
 
-  const value = { user };
+  const value = { user, setUserHandler, singOutUserHandler };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

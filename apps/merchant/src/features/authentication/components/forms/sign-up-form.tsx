@@ -1,6 +1,6 @@
 "use client";
 
-import { signUpFormSchema } from "~/src/features/authentication/data/form-schemas";
+import { signUpFormSchema, signUpFormProps } from "../../data";
 import { auth } from "@/lib/firebase/client";
 import { cn } from "@/utils/shadcn";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +19,9 @@ import { z } from "zod";
 import { Button } from "@repo/ui/components/ui/button";
 import { Form } from "@repo/ui/components/ui/form";
 import { SignUpInputField } from "../fields/signup-input-field";
-import { SignUpPasswordInputField } from "./signup-password-input-field";
+import { SignUpPasswordInputField } from "../fields/signup-password-input-field";
+import { toast } from "@repo/ui/hooks/use-toast";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,12 +33,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@repo/ui/components/ui/alert-dialog";
+import { useAuth } from "../../context";
+import { useCaptcha, useGoogleSignIn } from "../../hooks";
+import { useRouter } from "next/navigation";
 
 export const SignUpForm = () => {
-  const provider = new GoogleAuthProvider();
-
   // * HOOKS
-  const form = useForm<z.infer<typeof signUpFormSchema>>({
+  const router = useRouter();
+  const form = useForm<signUpFormProps>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
       email: "",
@@ -46,99 +50,55 @@ export const SignUpForm = () => {
     mode: "onChange",
   });
 
+  // * AUTH HOOKS
+  const { isGoogleLogin, handleSignInWithGoogle } = useGoogleSignIn();
+  const { setUserHandler } = useAuth();
+  // This avoid doing validation and showing errors after captcha validation if the input values are not dirty (different from the default values)
+  const handleRefreshForm = useCallback(() => {
+    try {
+      if (form.formState.isDirty) form.trigger();
+      return;
+    } catch (e) {
+      console.error(e);
+    }
+  }, [form.formState.isDirty]);
+  const { recaptchaRef, isVerified, handleExpired, handleChange } = useCaptcha({
+    synchWithFormState: handleRefreshForm,
+  });
+
   // * STATES
-  const recaptchaRef = useRef<typeof ReCAPTCHA>(null);
-  const [isVerified, setIsVerified] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // * HANDLERS
-  const onSubmit = useCallback(
-    async (values: z.infer<typeof signUpFormSchema>) => {
-      const res = await fetch("/api/check-email", {
-        method: "POST",
-        body: JSON.stringify({
-          email: values.email,
-        }),
-      });
-
-      const { exists } = await res.json();
-      console.log("EMAIL EXISTS", exists);
-      if (!exists) {
-        setShowError((prev) => !prev);
-
-        return;
-      } else {
-        // * Create user with email and password
-        createUserWithEmailAndPassword(auth, values.email, values.password)
-          .then(async (userCredential) => {
-            // Signed in
-            const user = userCredential.user;
-            console.log("USER:", user);
-
-            await fetch("/api/send-verification-email", {
-              method: "POST",
-              body: JSON.stringify({
-                email: user.email,
-              }),
-            });
-
-            await fetch("/api/create-user", {
-              method: "POST",
-              body: JSON.stringify({
-                uid: user.uid,
-                email: user.email,
-                isMerchant: true,
-              }),
-            });
-          })
-          .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(errorCode, errorMessage);
-          });
-      }
-    },
-    [],
-  );
-
-  const handleSignInWithGoogle = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {})
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        const email = error.customData.email;
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        console.log(errorCode, errorMessage, email, credential);
-      });
-  };
-
-  const handleCaptchaSubmission = async (token: string | null) => {
+  async function onSubmit(values: signUpFormProps) {
     try {
-      if (token) {
-        await fetch("/api/recaptcha", {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token }),
-        });
-        setIsVerified(true);
-      }
-    } catch (e) {
-      setIsVerified(false);
+      // Create user with email and password
+      setIsSubmitting(true);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password,
+      );
+      // Signed in
+      const user = userCredential.user;
+      await setUserHandler(user);
+      const userEmail = user.email ? user.email : values.email;
+
+      // User redirection to validate email
+      await sendEmailVerification(user);
+      router.replace("/email-verification");
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "error",
+        description: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-  };
-
-  const handleChange = (token: string | null) => {
-    handleCaptchaSubmission(token);
-  };
-
-  const handleExpired = () => {
-    setIsVerified(false);
-  };
-
+  }
   return (
     <>
       {showError && (
@@ -170,23 +130,17 @@ export const SignUpForm = () => {
               name="email"
               placeholder="Email"
               inputType="email"
-              formControl={
-                form.control as Control<z.infer<typeof signUpFormSchema>>
-              }
+              formControl={form.control as Control<signUpFormProps>}
             />
             <SignUpPasswordInputField
               name="password"
               placeholder="Password"
-              formControl={
-                form.control as Control<z.infer<typeof signUpFormSchema>>
-              }
+              formControl={form.control as Control<signUpFormProps>}
             />
             <SignUpPasswordInputField
               name="confirmPassword"
               placeholder="Confirm Password"
-              formControl={
-                form.control as Control<z.infer<typeof signUpFormSchema>>
-              }
+              formControl={form.control as Control<signUpFormProps>}
             />
             <div className="flex w-full items-center justify-center">
               <ReCAPTCHA
@@ -199,7 +153,7 @@ export const SignUpForm = () => {
               />
             </div>
             <Button
-              disabled={!isVerified}
+              disabled={!isVerified || isSubmitting || !form.formState.isValid}
               size="lg"
               type="submit"
               className="w-full"
