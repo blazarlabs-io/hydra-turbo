@@ -24,6 +24,7 @@ export const signUpFormSchema = z
       });
     }
   });
+export type signUpFormProps = z.infer<typeof signUpFormSchema>;
 
 export const loginFormSchema = z.object({
   email: z.string().email(),

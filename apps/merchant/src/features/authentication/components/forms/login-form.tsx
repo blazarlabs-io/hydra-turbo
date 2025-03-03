@@ -6,132 +6,122 @@ import { auth } from "@/lib/firebase/client";
 import { firebaseAuthErrors } from "~/src/features/authentication/utils/firebase-auth-errors";
 import { cn } from "@/utils/shadcn";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@repo/ui/components/ui/button";
 import { Form } from "@repo/ui/components/ui/form";
 import { AuthInputField } from "../fields/auth-input-field";
-import { PasswordInputField } from "./password-input-field";
+import { PasswordInputField } from "../fields/password-input-field";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@repo/ui/components/ui/tooltip";
+import { AUTH_COOKIE, LOGIN_CREDENTIALS_KEY } from "../../data";
+import { LoginStorage } from "../../types";
+import { setToLocalStorage, getFromLocalStorage } from "@/utils/local-storage";
+import { setCookie } from "cookies-next";
+import { useAuth } from "../../context";
+import { useCaptcha, useGoogleSignIn } from "../../hooks";
+import { sendVerificationEmailService } from "../../services/send-auth-emails";
+import router from "next/router";
 
 export const LoginForm = () => {
-  const provider = new GoogleAuthProvider();
-
-  // * HOOKS
+  // * FORM HOOKS
+  const router = useRouter();
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email:
-        (typeof window !== "undefined" &&
-          window.localStorage.getItem("email")) ||
-        "",
-      password:
-        (typeof window !== "undefined" &&
-          window.localStorage.getItem("password")) ||
-        "",
+        getFromLocalStorage<LoginStorage>(LOGIN_CREDENTIALS_KEY)?.email || "",
+      password: "",
     },
   });
-  const router = useRouter();
 
   // * STATES
-  const recaptchaRef = useRef<typeof ReCAPTCHA>(null);
-  const [isVerified, setIsVerified] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // * AUTH HOOKS
+  const { isGoogleLogin, handleSignInWithGoogle } = useGoogleSignIn();
+  const { setUserHandler } = useAuth();
+  // This avoid doing validation and showing errors after captcha validation if the input values are not dirty (different from the default values)
+  const handleRefreshForm = useCallback(() => {
+    try {
+      if (form.formState.isDirty) form.trigger();
+      return;
+    } catch (e) {
+      console.error(e);
+    }
+  }, [form.formState.isDirty]);
+  const { recaptchaRef, isVerified, handleExpired, handleChange } = useCaptcha({
+    synchWithFormState: handleRefreshForm,
+  });
 
   // * HANDLERS
-  const onSubmit = (values: z.infer<typeof loginFormSchema>) => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("email", values.email);
-      window.localStorage.setItem("password", values.password);
-    }
-
-    signInWithEmailAndPassword(auth, values.email, values.password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-
-        if (user.emailVerified) {
-          toast({
-            description: "Login successful",
-            title: "Success",
-            variant: "default",
-          });
-        } else {
-          toast({
-            description: "Please verify your email",
-            title: "Error",
-            variant: "destructive",
-          });
-          // router.push("/verify-email");
-        }
-      })
-      .catch((error) => {
-        toast({
-          description: firebaseAuthErrors[error.code],
-          title: "Error",
-          variant: "destructive",
-        });
-      });
-  };
-
-  const handleSignInWithGoogle = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // const user = result.user;
-        // console.log(user);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        const email = error.customData.email;
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        console.log(errorCode, errorMessage, email, credential);
-      });
-  };
-
-  const handleCaptchaSubmission = async (token: string | null) => {
+  const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
     try {
-      if (token) {
-        await fetch("/api/recaptcha", {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token }),
+      setIsSubmitting(true);
+      setToLocalStorage<LoginStorage>(LOGIN_CREDENTIALS_KEY, {
+        email: values.email,
+      });
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password,
+      );
+
+      // Signed In
+      const user = userCredential.user;
+      await setUserHandler(user);
+      const idToken = await user.getIdToken();
+      setCookie(AUTH_COOKIE, idToken, {
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+
+      if (user.emailVerified) {
+        toast({
+          variant: "default",
+          title: "Success",
+          description: "Login successful",
         });
-        setIsVerified(true);
+        router.replace("/dashboard/home");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Your email is not verified",
+          description: "Please verify your email",
+        });
+        // await sendVerificationEmailService(values.email);
+        // router.replace("/verify-email");
       }
-    } catch (e) {
-      setIsVerified(false);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "error",
+        description: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-  };
-
-  const handleChange = (token: string | null) => {
-    handleCaptchaSubmission(token);
-  };
-
-  const handleExpired = () => {
-    setIsVerified(false);
   };
 
   const handleForgotPassword = async () => {
     router.push("/forgot-password");
   };
+
+  /* 
+    It will be on processing if the Google sign-in process is initiated (Google modal Open) and when form is submitting 
+  */
+  const isProcessing = isGoogleLogin || isSubmitting;
 
   return (
     <div className="flex w-full min-w-[360px] max-w-[360px] flex-col gap-3 rounded-[12px] p-6">
@@ -142,7 +132,7 @@ export const LoginForm = () => {
         <Tooltip>
           <TooltipTrigger
             onClick={handleSignInWithGoogle}
-            disabled={!isVerified}
+            disabled={!isVerified || isSubmitting}
             type="button"
             className="flex w-full min-w-[320px] max-w-[320px] items-center justify-center gap-3 rounded-md border border-border bg-foreground px-4 py-2 text-base text-background disabled:bg-slate-400 disabled:text-slate-300"
           >
@@ -202,7 +192,7 @@ export const LoginForm = () => {
             />
           </div>
           <Button
-            disabled={!isVerified}
+            disabled={!isVerified || isProcessing || !form.formState.isValid}
             size="lg"
             type="submit"
             className="w-full"

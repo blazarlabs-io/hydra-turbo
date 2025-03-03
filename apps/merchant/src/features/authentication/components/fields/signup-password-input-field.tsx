@@ -34,7 +34,7 @@ export const SignUpPasswordInputField: React.FC<PasswordInputFieldProps> = ({
 }) => {
   const [passwordVisibility, setPasswordVisibility] = useState<boolean>(false);
 
-  const handlePaswordVisibility = () => {
+  const handlePasswordVisibility = () => {
     setPasswordVisibility(!passwordVisibility);
   };
 
@@ -55,7 +55,7 @@ export const SignUpPasswordInputField: React.FC<PasswordInputFieldProps> = ({
               />
               <button
                 type="button"
-                onClick={handlePaswordVisibility}
+                onClick={handlePasswordVisibility}
                 className="absolute right-2"
               >
                 {passwordVisibility ? (
