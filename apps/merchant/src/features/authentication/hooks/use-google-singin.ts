@@ -26,7 +26,6 @@ export const useGoogleSignIn = () => {
 
   const handleSignInWithGoogle = async () => {
     try {
-      router.replace("/dashboard/home");
       // Sets the popup state of the google modal to open (true) and try to get the user's data after the login
       setIsGoogleLogin(true);
       const { user } = await signInWithPopup(auth, provider);
@@ -36,7 +35,9 @@ export const useGoogleSignIn = () => {
         displayName,
         metadata: { creationTime },
       } = user;
+      router.replace("/dashboard/home");
       // If user has been logged successfully using Google for the first time then send a welcome email and then send a welcome email
+
       if (!user || !email || !displayName || !creationTime) return;
       if (!isUserNew(creationTime)) return;
       //   await sendEmailService({

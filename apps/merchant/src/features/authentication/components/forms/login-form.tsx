@@ -3,7 +3,6 @@
 import { loginFormSchema } from "~/src/features/authentication/data/form-schemas";
 import { toast } from "@repo/ui/hooks/use-toast";
 import { auth } from "@/lib/firebase/client";
-import { firebaseAuthErrors } from "~/src/features/authentication/utils/firebase-auth-errors";
 import { cn } from "@/utils/shadcn";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -30,7 +29,6 @@ import { setToLocalStorage, getFromLocalStorage } from "@/utils/local-storage";
 import { setCookie } from "cookies-next";
 import { useAuth } from "../../context";
 import { useCaptcha, useGoogleSignIn } from "../../hooks";
-import { sendVerificationEmailService } from "../../services/send-auth-emails";
 
 export const LoginForm = () => {
   // * FORM HOOKS
@@ -49,7 +47,7 @@ export const LoginForm = () => {
 
   // * AUTH HOOKS
   const { isGoogleLogin, handleSignInWithGoogle } = useGoogleSignIn();
-  const { setUserHandler } = useAuth();
+  const { setUserHandler, user } = useAuth();
   // This avoid doing validation and showing errors after captcha validation if the input values are not dirty (different from the default values)
   const handleRefreshForm = useCallback(() => {
     try {
