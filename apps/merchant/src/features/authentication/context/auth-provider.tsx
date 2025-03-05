@@ -7,7 +7,8 @@ import { useRouter, usePathname } from "next/navigation";
 
 // LIBS
 import { createContext, useContext, useEffect, useState } from "react";
-import { AUTH_COOKIE } from "../data";
+import { AUTH_COOKIE, LOGIN_CREDENTIALS_KEY } from "../data";
+import { removeFromLocalStorage } from "~/src/utils/local-storage";
 
 interface AuthContextInterface {
   user: User | null;
@@ -51,19 +52,13 @@ export const AuthProvider = ({
     setUser(null);
     signOut(auth);
     await deleteCookie(AUTH_COOKIE);
+    router.replace("/home");
   };
 
   useEffect(() => {
-    if (!pathname.startsWith("/dashboard")) router.replace("/dashboard/home");
-  }, [user]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+      await setUserHandler(user);
     });
 
     return () => {

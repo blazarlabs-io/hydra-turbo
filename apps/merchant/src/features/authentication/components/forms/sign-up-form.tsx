@@ -1,6 +1,6 @@
 "use client";
 
-import { signUpFormSchema, signUpFormProps } from "../../data";
+import { signUpFormSchema, signUpFormProps, AUTH_COOKIE } from "../../data";
 import { auth } from "@/lib/firebase/client";
 import { cn } from "@/utils/shadcn";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +29,7 @@ import {
 import { useAuth } from "../../context";
 import { useCaptcha, useGoogleSignIn } from "../../hooks";
 import { useRouter } from "next/navigation";
+import { setCookie } from "cookies-next";
 
 export const SignUpForm = () => {
   // * HOOKS
@@ -57,7 +58,6 @@ export const SignUpForm = () => {
   const { recaptchaRef, isVerified, handleExpired, handleChange } = useCaptcha({
     synchWithFormState: handleRefreshForm,
   });
-  console.log(user);
   // * STATES
   const [showError, setShowError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,6 +77,12 @@ export const SignUpForm = () => {
       const user = userCredential.user;
       await setUserHandler(user);
       const userEmail = user.email ? user.email : values.email;
+      const idToken = await user.getIdToken();
+      setCookie(AUTH_COOKIE, idToken, {
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
       router.replace("/dashboard/home");
 
       // User redirection to validate email
