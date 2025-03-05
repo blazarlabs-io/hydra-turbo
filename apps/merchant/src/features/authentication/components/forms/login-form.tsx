@@ -31,7 +31,6 @@ import { setCookie } from "cookies-next";
 import { useAuth } from "../../context";
 import { useCaptcha, useGoogleSignIn } from "../../hooks";
 import { sendVerificationEmailService } from "../../services/send-auth-emails";
-import router from "next/router";
 
 export const LoginForm = () => {
   // * FORM HOOKS
@@ -86,6 +85,7 @@ export const LoginForm = () => {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
+      router.replace("/dashboard/home");
 
       if (user.emailVerified) {
         toast({
@@ -93,7 +93,7 @@ export const LoginForm = () => {
           title: "Success",
           description: "Login successful",
         });
-        router.replace("/dashboard/home");
+        // Redirect.ToDashboardHomePage();
       } else {
         toast({
           variant: "destructive",
@@ -101,7 +101,7 @@ export const LoginForm = () => {
           description: "Please verify your email",
         });
         // await sendVerificationEmailService(values.email);
-        // router.replace("/verify-email");
+        // Redirect.ToEmailVerificationPage();
       }
     } catch (error: any) {
       toast({
@@ -164,10 +164,12 @@ export const LoginForm = () => {
             name="email"
             placeholder="Email"
             inputType="email"
+            disabled={isProcessing}
             formControl={form.control}
           />
           <PasswordInputField
             name="password"
+            disabled={isProcessing}
             placeholder="Password"
             formControl={form.control}
           />

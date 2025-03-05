@@ -22,6 +22,7 @@ export interface PasswordInputFieldProps {
   label?: string;
   placeholder: string;
   description?: string;
+  disabled?: boolean;
   formControl: Control<
     z.infer<typeof signUpFormSchema | typeof loginFormSchema>,
     any
@@ -32,6 +33,7 @@ export const PasswordInputField: React.FC<PasswordInputFieldProps> = ({
   name,
   label,
   placeholder,
+  disabled = false,
   description,
   formControl,
 }) => {
@@ -45,6 +47,7 @@ export const PasswordInputField: React.FC<PasswordInputFieldProps> = ({
     <FormField
       control={formControl}
       name={name}
+      disabled={disabled}
       render={({ field }) => (
         <FormItem>
           {label && <FormLabel>{label}</FormLabel>}

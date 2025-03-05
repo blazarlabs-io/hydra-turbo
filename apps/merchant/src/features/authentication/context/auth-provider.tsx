@@ -3,6 +3,7 @@
 import { auth } from "@/lib/firebase/client";
 import { User, onAuthStateChanged, signOut } from "firebase/auth";
 import { deleteCookie, setCookie } from "cookies-next";
+import { useRouter, usePathname } from "next/navigation";
 
 // LIBS
 import { createContext, useContext, useEffect, useState } from "react";
@@ -34,7 +35,8 @@ export const AuthProvider = ({
   children,
 }: React.PropsWithChildren): JSX.Element => {
   const [user, setUser] = useState<User | null>(null);
-
+  const router = useRouter();
+  const pathname = usePathname();
   const setUserHandler = async (user: User) => {
     setUser(user);
     const idToken = await user.getIdToken();
@@ -50,6 +52,10 @@ export const AuthProvider = ({
     signOut(auth);
     await deleteCookie(AUTH_COOKIE);
   };
+
+  useEffect(() => {
+    if (!pathname.startsWith("/dashboard")) router.replace("/dashboard/home");
+  }, [user]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

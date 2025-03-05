@@ -4,15 +4,10 @@ import { signUpFormSchema, signUpFormProps } from "../../data";
 import { auth } from "@/lib/firebase/client";
 import { cn } from "@/utils/shadcn";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  sendEmailVerification,
-  signInWithPopup,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Control, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -25,13 +20,11 @@ import { toast } from "@repo/ui/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@repo/ui/components/ui/alert-dialog";
 import { useAuth } from "../../context";
 import { useCaptcha, useGoogleSignIn } from "../../hooks";
@@ -39,7 +32,6 @@ import { useRouter } from "next/navigation";
 
 export const SignUpForm = () => {
   // * HOOKS
-  const router = useRouter();
   const form = useForm<signUpFormProps>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
@@ -52,7 +44,7 @@ export const SignUpForm = () => {
 
   // * AUTH HOOKS
   const { isGoogleLogin, handleSignInWithGoogle } = useGoogleSignIn();
-  const { setUserHandler } = useAuth();
+  const { setUserHandler, user } = useAuth();
   // This avoid doing validation and showing errors after captcha validation if the input values are not dirty (different from the default values)
   const handleRefreshForm = useCallback(() => {
     try {
@@ -65,10 +57,11 @@ export const SignUpForm = () => {
   const { recaptchaRef, isVerified, handleExpired, handleChange } = useCaptcha({
     synchWithFormState: handleRefreshForm,
   });
-
+  console.log(user);
   // * STATES
   const [showError, setShowError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   // * HANDLERS
   async function onSubmit(values: signUpFormProps) {
@@ -84,10 +77,11 @@ export const SignUpForm = () => {
       const user = userCredential.user;
       await setUserHandler(user);
       const userEmail = user.email ? user.email : values.email;
+      router.replace("/dashboard/home");
 
       // User redirection to validate email
-      await sendEmailVerification(user);
-      router.replace("/email-verification");
+      // await sendEmailVerification(userEmail);
+      // Redirect.ToEmailVerificationPage();
     } catch (error: any) {
       console.error(error);
       toast({
@@ -99,6 +93,7 @@ export const SignUpForm = () => {
       setIsSubmitting(false);
     }
   }
+  const isProcessing = isSubmitting || isGoogleLogin;
   return (
     <>
       {showError && (
@@ -127,17 +122,20 @@ export const SignUpForm = () => {
             className="w-full space-y-4"
           >
             <SignUpInputField
+              disabled={isProcessing}
               name="email"
               placeholder="Email"
               inputType="email"
               formControl={form.control as Control<signUpFormProps>}
             />
             <SignUpPasswordInputField
+              disabled={isProcessing}
               name="password"
               placeholder="Password"
               formControl={form.control as Control<signUpFormProps>}
             />
             <SignUpPasswordInputField
+              disabled={isProcessing}
               name="confirmPassword"
               placeholder="Confirm Password"
               formControl={form.control as Control<signUpFormProps>}
@@ -153,7 +151,7 @@ export const SignUpForm = () => {
               />
             </div>
             <Button
-              disabled={!isVerified || isSubmitting || !form.formState.isValid}
+              disabled={!isVerified || isProcessing || !form.formState.isValid}
               size="lg"
               type="submit"
               className="w-full"
@@ -179,7 +177,7 @@ export const SignUpForm = () => {
           <div className="h-[1px] w-full bg-border" />
         </div>
         <button
-          disabled={!isVerified}
+          disabled={!isVerified || isProcessing}
           onClick={handleSignInWithGoogle}
           className="flex w-full min-w-[320px] max-w-[320px] items-center justify-center gap-3 rounded-md border border-border bg-foreground px-4 py-2 text-base text-background disabled:bg-slate-400 disabled:text-slate-300"
         >

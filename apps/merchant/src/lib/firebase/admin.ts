@@ -43,3 +43,7 @@ export async function initAdmin() {
 
   return createFirebaseAdminApp(params);
 }
+
+initAdmin();
+export const adminAuth = admin.auth();
+export const adminFirestore = admin.firestore();
