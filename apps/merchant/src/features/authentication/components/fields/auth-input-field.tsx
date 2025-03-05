@@ -22,6 +22,7 @@ export interface AuthInputFieldProps {
   placeholder: string;
   description?: string;
   inputType?: string;
+  disabled?: boolean;
   formControl: Control<
     z.infer<typeof signUpFormSchema | typeof loginFormSchema>,
     any
@@ -34,12 +35,14 @@ export const AuthInputField: React.FC<AuthInputFieldProps> = ({
   placeholder,
   description,
   inputType,
+  disabled = false,
   formControl,
 }) => {
   return (
     <FormField
       control={formControl}
       name={name}
+      disabled={disabled}
       render={({ field }) => (
         <FormItem>
           {label && <FormLabel>{label}</FormLabel>}

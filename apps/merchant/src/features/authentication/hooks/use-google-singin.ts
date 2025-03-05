@@ -1,11 +1,13 @@
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 // import { sendEmailService } from "@/services/email";
 // import { emailTemplates } from "@/utils/email-templates";
 
 export const useGoogleSignIn = () => {
   // * STATE
+  const router = useRouter();
   const [isGoogleLogin, setIsGoogleLogin] = useState(false);
 
   // * GOOGLE PROVIDER
@@ -24,6 +26,7 @@ export const useGoogleSignIn = () => {
 
   const handleSignInWithGoogle = async () => {
     try {
+      router.replace("/dashboard/home");
       // Sets the popup state of the google modal to open (true) and try to get the user's data after the login
       setIsGoogleLogin(true);
       const { user } = await signInWithPopup(auth, provider);
