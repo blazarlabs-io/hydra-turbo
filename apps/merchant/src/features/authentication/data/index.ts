@@ -9,7 +9,9 @@ import {
   autosaveFormSchema,
   type signUpFormProps,
 } from "./form-schemas";
+import { emailTemplates } from "../../../data/email-templates";
 export {
+  emailTemplates,
   LOGIN_CREDENTIALS_KEY,
   FORGOT_PASS_KEY,
   LOCATE_COOKIE_NAME,
