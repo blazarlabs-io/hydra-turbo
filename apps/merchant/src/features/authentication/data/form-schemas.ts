@@ -77,3 +77,30 @@ export const changePasswordFormSchema = z
 export const autosaveFormSchema = z.object({
   autosave: z.boolean().default(true).optional(),
 });
+
+export const passwordResetFormSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8)
+      .regex(new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$"), {
+        message:
+          "Password must be at least 8 characters and contain an uppercase letter, lowercase letter, and number",
+      }),
+    confirmNewPassword: z
+      .string()
+      .min(8)
+      .regex(new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$"), {
+        message:
+          "Password must be at least 8 characters and contain an uppercase letter, lowercase letter, and number",
+      }),
+  })
+  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
+    if (confirmNewPassword !== newPassword) {
+      ctx.addIssue({
+        code: "custom",
+        message: "The passwords did not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });

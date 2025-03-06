@@ -6,20 +6,18 @@ import { useState } from "react";
 
 import { ConfirmEmailParamsType } from "../types";
 import { checkActionCode, confirmPasswordReset } from "firebase/auth";
-import { ResetPasswordForm } from "../components/forms/reset-password-form";
-import { passwordResetFormSchema } from "~/src/features/wineries/data/form-schemas";
+import { ResetPasswordForm } from "../components/";
+import { passwordResetFormSchema } from "../data";
 import { z } from "zod";
 import {
   useConfirmResetPassword,
   useResetPasswordForm,
 } from "~/src/features/authentication/hooks";
-import { useTranslationHandler } from "@/hooks/use-translation-handler";
 import { Button } from "@repo/ui/components/ui/button";
 import { cn } from "@repo/ui/lib/utils";
 
 export const PasswordResetPage = ({ oobCode }: ConfirmEmailParamsType) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { t } = useTranslationHandler();
   // * HOOKS
   const router = useRouter();
 
@@ -56,22 +54,22 @@ export const PasswordResetPage = ({ oobCode }: ConfirmEmailParamsType) => {
     >
       {isConfirming ? (
         <h1 className="text-3xl pb-4 font-medium text-center">
-          {t("authPages.resetPassword.confirmMessage")}
+          {"authPages.resetPassword.confirmMessage"}
         </h1>
       ) : isError ? (
         <>
           <h1 className="text-3xl pb-4 font-medium text-center">
-            {t("authPages.resetPassword.errorMessage")}
+            {"authPages.resetPassword.errorMessage"}
           </h1>
           <Button size="lg" onClick={handleContinue}>
-            {t("authPages.resetPassword.backButtonLable")}
+            {"authPages.resetPassword.backButtonLable"}
           </Button>
         </>
       ) : (
         <ResetPasswordForm
           form={form}
           onSubmit={onSubmit}
-          disalbed={isSubmitting}
+          disabled={isSubmitting}
         />
       )}
     </div>

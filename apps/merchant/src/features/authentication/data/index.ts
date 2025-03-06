@@ -7,6 +7,7 @@ import {
   contactFormSchema,
   changePasswordFormSchema,
   autosaveFormSchema,
+  passwordResetFormSchema,
   type signUpFormProps,
 } from "./form-schemas";
 import { emailTemplates } from "../../../data/email-templates";
@@ -19,6 +20,7 @@ export {
   signUpFormSchema,
   loginFormSchema,
   forgotPasswordSchema,
+  passwordResetFormSchema,
   contactFormSchema,
   changePasswordFormSchema,
   autosaveFormSchema,
