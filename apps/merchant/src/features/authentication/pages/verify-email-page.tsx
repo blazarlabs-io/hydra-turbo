@@ -3,7 +3,6 @@
 import { useAuth } from "../context/auth-provider";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useTranslationHandler } from "@/hooks/use-translation-handler";
 import { sendVerificationEmailService } from "../services";
 import { useCustomCountDown } from "@/hooks/use-custom-count-down";
 import { cn } from "@repo/ui/lib/utils";
@@ -15,7 +14,6 @@ export const VerifyEmailPage = () => {
   const [isSending, setIsSending] = useState(false);
   // * HOOKS
   const router = useRouter();
-  const { t } = useTranslationHandler();
   const { user } = useAuth();
 
   const { timeLeft, startCountDown } = useCustomCountDown(30);
@@ -68,20 +66,18 @@ export const VerifyEmailPage = () => {
         height={234}
       />
       <h2 className="text-center text-2xl font-bold text-foreground px-2">
-        {t("authPages.verifyEmail.title")}
+        {"authPages.verifyEmail.title"}
       </h2>
       <p className="text-center text-foreground">
-        {t("authPages.verifyEmail.message")}
+        {"authPages.verifyEmail.message"}
       </p>
       <div className="flex w-full items-center justify-center gap-2">
         <p className="text-center text-muted-foreground">
-          {t("authPages.verifyEmail.question")}
+          {"authPages.verifyEmail.question"}
         </p>
         {timeLeft >= 0 ? (
           <p className="text-center text-muted-foreground">
-            {t("authPages.verifyEmail.resendInMessage", {
-              timeLeft,
-            })}
+            {"authPages.verifyEmail.resendInMessage" + timeLeft}
           </p>
         ) : (
           <button
@@ -92,7 +88,7 @@ export const VerifyEmailPage = () => {
             )}
             disabled={isSending}
           >
-            {t("authPages.verifyEmail.resendButtonLable")}
+            {"authPages.verifyEmail.resendButtonLable"}
           </button>
         )}
       </div>

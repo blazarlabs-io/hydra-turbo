@@ -2,13 +2,11 @@
 
 import Image from "next/image";
 import { Button } from "@repo/ui/components/ui/button";
-import { useTranslationHandler } from "@/hooks/use-translation-handler";
 import { ConfirmEmailParamsType } from "../types";
 import { useConfirmEmailHandler } from "../hooks";
 
 export const ConfirmEmailPage = (params: ConfirmEmailParamsType) => {
-  const { t } = useTranslationHandler();
-  const { isConfirming, isError, handleContinueToTracecork } =
+  const { isConfirming, isError, handleContinueToHydra } =
     useConfirmEmailHandler(params);
 
   return (
@@ -23,27 +21,21 @@ export const ConfirmEmailPage = (params: ConfirmEmailParamsType) => {
       )}
       {isError ? (
         <>
-          <h1 className="text-3xl pb-4 font-medium text-center">
-            {t("authPages.confirmEmail.errorMessage")}
-          </h1>
-          <Button size="lg" onClick={handleContinueToTracecork}>
-            {t("authPages.confirmEmail.continueButtonLabel")}
+          <h1 className="text-3xl pb-4 font-medium text-center">Title</h1>
+          <Button size="lg" onClick={handleContinueToHydra}>
+            continue
           </Button>
         </>
       ) : isConfirming ? (
-        <h1 className="text-3xl pb-4 font-medium text-center">
-          {t("authPages.confirmEmail.confirmMessage")}
-        </h1>
+        <h1 className="text-3xl pb-4 font-medium text-center">Confirm?</h1>
       ) : (
         <>
-          <h1 className="text-3xl font-medium text-center">
-            {t("authPages.confirmEmail.title")}
-          </h1>
+          <h1 className="text-3xl font-medium text-center">Email</h1>
           <p className="py-6 text-base font-normal text-muted-foreground">
-            {t("authPages.confirmEmail.message")}
+            confirm your email
           </p>
-          <Button size="lg" onClick={handleContinueToTracecork}>
-            {t("authPages.confirmEmail.continueButtonLabel")}
+          <Button size="lg" onClick={handleContinueToHydra}>
+            continue
           </Button>
         </>
       )}

@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Button } from "@repo/ui/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslationHandler } from "@/hooks/use-translation-handler";
 import { useCustomCountDown } from "@/hooks/use-custom-count-down";
 import { sendPasswordRecoveryEmailService } from "../services";
 import { useState } from "react";
@@ -14,7 +13,6 @@ import { useGetForgotPassEmail } from "../hooks";
 export const PasswordResetSentPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   // * HOOKS
-  const { t } = useTranslationHandler();
   const router = useRouter();
 
   const { forgotPassEmail } = useGetForgotPassEmail();
@@ -42,16 +40,14 @@ export const PasswordResetSentPage = () => {
         height={48}
       />
       <h2 className="mt-12 text-2xl font-bold text-center">
-        {t("authPages.passwordResetSent.title")}
+        {"authPages.passwordResetSent.title"}
       </h2>
-      <p className="text-center">{t("authPages.passwordResetSent.message")}</p>
+      <p className="text-center">{"authPages.passwordResetSent.message"}</p>
       <p className="text-center">
-        {`${t("authPages.passwordResetSent.question")} `}
+        {`${"authPages.passwordResetSent.question"} `}
         {timeLeft >= 0 ? (
           <span className="text-primary">
-            {t("authPages.passwordResetSent.resendInMessage", {
-              timeLeft,
-            })}
+            {"authPages.passwordResetSent.resendInMessage" + timeLeft}
           </span>
         ) : (
           <button
@@ -59,7 +55,7 @@ export const PasswordResetSentPage = () => {
             className={cn("text-primary underline", "disabled:opacity-50")}
             onClick={() => resendHandler()}
           >
-            {t("authPages.passwordResetSent.resendButtonLable")}
+            {"authPages.passwordResetSent.resendButtonLable"}
           </button>
         )}
       </p>
@@ -70,7 +66,7 @@ export const PasswordResetSentPage = () => {
         onClick={() => router.replace("/login")}
       >
         <ArrowLeft className="h-4 w-4" />
-        {t("authPages.passwordResetSent.backButtonLable")}
+        {"authPages.passwordResetSent.backButtonLable"}
       </Button>
     </div>
   );
