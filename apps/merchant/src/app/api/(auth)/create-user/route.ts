@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Timestamp } from "firebase/firestore";
-import { initAdmin } from "~/src/lib/firebase/admin";
+import { initAdmin } from "@/lib/firebase/admin";
 
 export async function POST(req: Request) {
   if (req.method !== "POST") {
