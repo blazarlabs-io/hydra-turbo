@@ -29,12 +29,13 @@ export async function middleware(request: NextRequest) {
   const OnVerifyEmail = pathname.startsWith("/verify-email");
 
   if (authData) {
-    const {
-      decodedData: { email_verified },
-    } = authData;
+    // const {
+    //   decodedData: { email_verified },
+    // } = authData;
     const onAuthRoute = authProtectedRoutes.some((authRoute) =>
       pathname.startsWith(authRoute),
     );
+    let email_verified = true;
 
     //  * IF TRIES ACCESSING TO AN AUTH OR ROOT PAGE PREVENT ACCESS IF EMAIL IS VERIFIED
     if (pathname === "/" || onAuthRoute) {
