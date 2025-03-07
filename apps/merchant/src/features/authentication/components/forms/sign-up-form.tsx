@@ -30,7 +30,7 @@ import { useAuth } from "../../context";
 import { useCaptcha, useGoogleSignIn } from "../../hooks";
 import { useRouter } from "next/navigation";
 import { setCookie } from "cookies-next";
-
+import { sendVerificationEmailService } from "../../services";
 export const SignUpForm = () => {
   // * HOOKS
   const form = useForm<signUpFormProps>({
@@ -86,8 +86,8 @@ export const SignUpForm = () => {
       router.replace("/dashboard/home");
 
       // User redirection to validate email
-      // await sendEmailVerification(userEmail);
-      // Redirect.ToEmailVerificationPage();
+      await sendVerificationEmailService(userEmail);
+      router.replace("/verify-email");
     } catch (error: any) {
       console.error(error);
       toast({

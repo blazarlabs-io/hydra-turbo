@@ -12,9 +12,10 @@ import { Logo } from "../assets/logo";
 import { useAuth } from "~/src/features/authentication/context/auth-provider";
 import { Separator } from "@repo/ui/components/ui/separator";
 import { LocaleSwitcher } from "@/components/widgets/locale-switcher/locale-switcher";
+import { LogOut } from "lucide-react";
 
 export const NavigationBar = () => {
-  const { user } = useAuth();
+  const { user, singOutUserHandler } = useAuth();
   return (
     <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
       <Sheet>
@@ -39,17 +40,33 @@ export const NavigationBar = () => {
         </div>
         <div className="flex items-center gap-4">
           {/* <LocaleSwitcher /> */}
-          {user && user.emailVerified ? (
-            // <Button variant="outline" size="sm">
-            //   <Link href="/dashboard/home">Back to Dashboard</Link>
-            // </Button>
-            <></>
-          ) : (
+          {user && !user.emailVerified && (
+            <Button
+              className="cursor-pointer"
+              onClick={singOutUserHandler}
+              variant="outline"
+              size="sm"
+              asChild
+            >
+              <div className="flex items-center gap-2 p-2">
+                <LogOut />
+                <p>Log Out</p>
+              </div>
+            </Button>
+          )}
+          {user && user.emailVerified && (
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/dashboard/home">Back to Dashboard</Link>
+              </Button>
+            </>
+          )}{" "}
+          {!user && (
             <div className="flex gap-4">
-              <Button variant="outline">
+              <Button asChild variant="outline">
                 <Link href="/login">Login</Link>
               </Button>
-              <Button>
+              <Button asChild>
                 <Link href="/signup">Sign Up</Link>
               </Button>
             </div>

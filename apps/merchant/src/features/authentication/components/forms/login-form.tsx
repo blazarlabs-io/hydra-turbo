@@ -29,6 +29,7 @@ import { setToLocalStorage, getFromLocalStorage } from "@/utils/local-storage";
 import { setCookie } from "cookies-next";
 import { useAuth } from "../../context";
 import { useCaptcha, useGoogleSignIn } from "../../hooks";
+import { sendVerificationEmailService } from "../../services";
 
 export const LoginForm = () => {
   // * FORM HOOKS
@@ -83,7 +84,6 @@ export const LoginForm = () => {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
-      router.replace("/dashboard/home");
 
       if (user.emailVerified) {
         toast({
@@ -91,15 +91,15 @@ export const LoginForm = () => {
           title: "Success",
           description: "Login successful",
         });
-        // Redirect.ToDashboardHomePage();
+        router.replace("/dashboard/home");
       } else {
         toast({
           variant: "destructive",
           title: "Your email is not verified",
           description: "Please verify your email",
         });
-        // await sendVerificationEmailService(values.email);
-        // Redirect.ToEmailVerificationPage();
+        await sendVerificationEmailService(values.email);
+        router.replace("/verify-email");
       }
     } catch (error: any) {
       toast({
