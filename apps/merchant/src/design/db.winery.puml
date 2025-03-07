@@ -1,0 +1,33 @@
+@startuml
+class Winery {
+  # id: string
+  + name: string
+  + location: string
+  + profileData: string
+}
+
+class Users {
+  # id: string
+  + name: string
+  + email: string
+  + wineryId: string
+}
+
+class Wines {
+  # id: string
+  + name: string
+  + qrCodeUrl: string
+  + ingredients: string
+  + wineType: string
+}
+
+class QRcodes {
+  # id: string
+  + storageUrl: string
+  + scannedCount: int
+}
+
+Users "1" -- "1" Winery : owns >
+Winery "1" -- "many" Wines : contains >
+Winery "1" -- "many" QRcodes : contains >
+@enduml
