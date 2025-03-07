@@ -4,7 +4,13 @@ import { checkIdToken } from "@/features/authentication/services";
 import { AUTH_COOKIE } from "@/features/authentication/data";
 import { CheckIdTokenResp } from "./features/authentication/types";
 
-const authProtectedRoutes = ["/login", "/signup"];
+const authProtectedRoutes = [
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/password-reset",
+  "/password-rest-sent",
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -23,10 +29,9 @@ export async function middleware(request: NextRequest) {
   const OnVerifyEmail = pathname.startsWith("/verify-email");
 
   if (authData) {
-    // const {
-    //   decodedData: { email_verified },
-    // } = authData;
-    let email_verified = true;
+    const {
+      decodedData: { email_verified },
+    } = authData;
     const onAuthRoute = authProtectedRoutes.some((authRoute) =>
       pathname.startsWith(authRoute),
     );
@@ -68,5 +73,10 @@ export const config = {
     "/login",
     "/signup",
     "/home",
+    "/forgot-password",
+    "/password-reset",
+    "/password-rest-sent",
+    "/confirm-email",
+    "/verify-email",
   ],
 };
