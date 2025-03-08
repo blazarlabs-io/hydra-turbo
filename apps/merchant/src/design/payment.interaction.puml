@@ -1,23 +1,28 @@
 @startuml
 title Hydra Payment Process
 
-actor Client
-actor User
+actor Customer
+actor Merchant
 participant "Merchant App" as WebApp
-participant "BLE Device" as Device
+participant "BLE Device (server)" as Device
 participant "Movile App" as MovileApp
 participant "Backend API" as Backend
 
-User -> WebApp: Click on payment request
-WebApp -> Device: Send payment due
-Device -> Device: Bluethoot On
-Client -> MovileApp: Touch on perform payment
+Merchant -> WebApp: Click on payment request
+WebApp -> WebApp: Create payment transaction
+WebApp -> Device: Send (write) payment transaction id
+Device -> Device: Bluethoot Write specific caracteristic
+Customer -> MovileApp: Touch on perform payment
 MovileApp -> MovileApp: Turn on BLE
 MovileApp -> Device: Get near to device
-Device -> MovileApp: Send merchant wallet info
-MovileApp -> Backend: Post the payment form user wallet to merchant wallet
+Device -> MovileApp: Send merchant payment id
+MovileApp -> MovileApp: Fetch payment info
+MovileApp -> MovileApp: Display payment info modal and confirmation button
+MovileApp -> MovileApp: Touch confirmation button
+MovileApp -> Backend: Post the payment
 Backend -> Backend: Process payment request
-Backend -> User: Success response
-Backend -> Client: Success response via notification system
+Backend -> MovileApp: Success response
+MovileApp -> Customer: Display confirmation modals
+Backend -> Merchant: Success response via notification system
 
 @enduml
