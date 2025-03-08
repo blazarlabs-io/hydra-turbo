@@ -13,13 +13,15 @@
 
 class MyCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
-    String value = pCharacteristic->getValue();
+    // std::string value = pCharacteristic->getValue();
+    // String stringValue = String(value.c_str());
+    String stringValue = pCharacteristic->getValue();
 
-    if (value.length() > 0) {
+    if (stringValue.length() > 0) {
       Serial.println("*********");
       Serial.print("New value: ");
-      for (int i = 0; i < value.length(); i++) {
-        Serial.print(value[i]);
+      for (int i = 0; i < stringValue.length(); i++) {
+        Serial.print(stringValue[i]);
       }
 
       Serial.println();
