@@ -15,16 +15,47 @@ import {
 } from "@repo/ui/components/ui/sheet";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
+import {
+  connectToBLEDevice,
+  disconnectToBLEDevice,
+  getCharacteristic,
+  scanDevices,
+  writeCharacteristic,
+} from "../services/ble-connection";
 
-type ReceivePaymentProps = {
+type ReceivePaymentWidgetProps = {
   children: React.ReactNode;
 };
 
-export const ReceivePayment = ({ children }: ReceivePaymentProps) => {
+export const ReceivePaymentWidget = ({
+  children,
+}: ReceivePaymentWidgetProps) => {
+  const handleScanDevices = async () => {
+    console.log("Scanning devices...");
+    const scanResponse = await scanDevices();
+    console.log(scanResponse.device);
+    const connectResponse = await connectToBLEDevice(scanResponse.device);
+    console.log(connectResponse.server);
+    const characteristicsResponse = await getCharacteristic(
+      connectResponse.server,
+    );
+    console.log(characteristicsResponse);
+    const writeResponse = await writeCharacteristic(scanResponse.device);
+    console.log(writeResponse);
+    const secondaryCharacteristicsResponse = await getCharacteristic(
+      connectResponse.server,
+    );
+    const secondaryBuffer =
+      await secondaryCharacteristicsResponse.characteristic[0].value.buffer;
+    const data = new DataView(secondaryBuffer);
+    const foo = data.getUint8(0);
+    console.log("secondary value: ", foo);
+    await disconnectToBLEDevice(scanResponse.device);
+  };
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button>{children}</Button>
+        <Button onClick={handleScanDevices}>{children}</Button>
       </SheetTrigger>
       <SheetContent
         side="bottom"

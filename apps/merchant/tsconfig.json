@@ -17,7 +17,8 @@
     "postcss.config.mjs",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/features/payments/services/ble-connection.js"
   ],
   "exclude": ["node_modules"]
 }
