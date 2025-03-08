@@ -16,7 +16,9 @@ Customer -> MovileApp: Touch on perform payment
 MovileApp -> MovileApp: Turn on BLE
 MovileApp -> Device: Get near to device
 Device -> MovileApp: Send merchant payment id
-MovileApp -> MovileApp: Fetch payment info
+MovileApp -> Device: Erase payment id
+MovileApp -> Backend: Fetch payment info
+Backend -> MovileApp: Retreive payment info
 MovileApp -> MovileApp: Display payment info modal and confirmation button
 MovileApp -> MovileApp: Touch confirmation button
 MovileApp -> Backend: Post the payment
