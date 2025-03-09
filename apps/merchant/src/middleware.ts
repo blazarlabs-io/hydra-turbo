@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const idToken = request.cookies.get(AUTH_COOKIE)?.value;
   let authData: CheckIdTokenResp | undefined = undefined;
-  console.log("Middleware", idToken);
+
   // if there is a token, check if it is valid if not delete it
   if (!!idToken) {
     authData = await checkIdToken(idToken, request.url);

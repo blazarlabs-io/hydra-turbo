@@ -1,111 +1,82 @@
-import { optional } from "zod";
-
-const DEVICE_NAME = "HydraMerchant";
-const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-const ADDRESS_CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
-const VALUE_CHARACTERISTIC_UUID = "7f5b388b-5195-4d06-8bbe-2bda381ec89e";
-const RESPONSE_CHARACTERISTIC_UUID = "1f27b6c7-0b7b-434c-82bf-3d7e38bee582";
-
-interface ScanDevicesResponse {
-  success: boolean;
-  device: any;
-}
-export async function scanDevices(): Promise<ScanDevicesResponse> {
+export async function scanDevicesService(
+  deviceName: string,
+  optionalServices: string[],
+) {
   if (!("bluetooth" in navigator)) {
-    console.log("Your browser may not support the BLE Bluetooth API");
-    return { success: false, device: null };
+    throw new Error("Your browser may not support the BLE Bluetooth API");
   }
 
   try {
-    const device = await (navigator as any).bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [SERVICE_UUID],
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: false,
+      filters: [{ name: deviceName, services: optionalServices }],
     });
-
-    const connectStatus = device.name ? true : false;
-    return { success: connectStatus, device: connectStatus ? device : null };
+    const isTargetDevice = device.name === deviceName;
+    if (!isTargetDevice) return;
+    return device;
   } catch (error) {
     console.log(error);
-    return { success: false, device: null };
   }
 }
-interface ConnectToDevice {
-  success: boolean;
-  server: any;
-}
-export async function connectToBLEDevice(
-  device: any,
-): Promise<ConnectToDevice> {
-  if (device === null) {
-    return { success: false, server: null };
-  }
+
+export async function connectToBLEDeviceService(
+  device: BluetoothDevice,
+  serviceId: string,
+) {
+  if (device === null) return;
 
   try {
-    const server = await device.gatt.connect();
-    return { success: true, server };
+    const server = await device?.gatt?.connect();
+    if (!server) return;
+    return await server.getPrimaryService(serviceId);
   } catch (error) {
-    console.log(error, "Your browser may not support the GATT server");
-    return { success: false, server: null };
+    console.log(error, "Error connecting to BLE device");
   }
 }
 
-interface GetCharacteristicsResponse {
-  characteristic: any;
-  success: boolean;
-}
-export async function getCharacteristic(
-  server: any,
-): Promise<GetCharacteristicsResponse> {
-  if (server === null) return { characteristic: null, success: false };
+export async function getCharacteristicService(
+  service: BluetoothRemoteGATTService,
+  characteristicId: string,
+) {
   try {
-    const service = await server.getPrimaryService(SERVICE_UUID);
-    const characteristic = await service.getCharacteristics(
-      VALUE_CHARACTERISTIC_UUID,
-    );
-    return { characteristic, success: true };
+    const characteristic = await service.getCharacteristic(characteristicId);
+    return characteristic;
   } catch (error) {
-    console.log(error, "Your browser may not support the GATT server");
-    return { characteristic: null, success: false };
+    console.log(error, "Error in get characteristic service");
   }
 }
 
-interface WriteCharacteristicResponse {
-  success: boolean;
-}
-export async function writeCharacteristic(
-  device: any,
-): Promise<WriteCharacteristicResponse> {
-  if (device === null) return { success: false };
+export async function getCharacteristicValueService(
+  characteristic: BluetoothRemoteGATTCharacteristic,
+) {
   try {
-    const service = await device.gatt.getPrimaryService(SERVICE_UUID);
-    const characteristic = await service.getCharacteristic(
-      VALUE_CHARACTERISTIC_UUID,
-    );
+    const value = await characteristic.readValue();
+    // Convert DataView to string
+    const decoder = new TextDecoder("utf-8");
+    return decoder.decode(value);
+  } catch (error) {
+    console.log(error, "Error in get characteristic value");
+  }
+}
+
+export async function writeCharacteristicService(
+  characteristic: BluetoothRemoteGATTCharacteristic,
+  value: string,
+) {
+  try {
     const encoder = new TextEncoder();
-    const value = encoder.encode("E1s4jG9evuaaiuTdX8A8");
-    await characteristic.writeValue(value);
-    return { success: true };
+    const envodedValue = encoder.encode(value);
+    await characteristic.writeValue(envodedValue);
   } catch (error) {
-    console.log(error, "Your browser may not support the GATT server");
+    console.log(error, "Error writing characteristic");
     return { success: false };
   }
 }
 
-interface DisconnectToBLEDeviceProps {
-  success: boolean;
-}
-export async function disconnectToBLEDevice(
-  device: any,
-): Promise<DisconnectToBLEDeviceProps> {
-  if (device === null) {
-    return { success: false };
-  }
-
+export async function disconnectToBLEDeviceService(device: BluetoothDevice) {
   try {
-    await device.gatt.disconnect();
-    return { success: true };
+    device?.gatt?.disconnect();
   } catch (error) {
-    console.log(error, "Your browser may not support the GATT server");
-    return { success: false };
+    console.log(error, "Error disconnecting device");
   }
 }

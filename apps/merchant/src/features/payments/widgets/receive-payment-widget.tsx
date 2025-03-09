@@ -1,11 +1,8 @@
 "use client";
 
 import { Button } from "@repo/ui/components/ui/button";
-import { Input } from "@repo/ui/components/ui/input";
-import { Label } from "@repo/ui/components/ui/label";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -15,13 +12,8 @@ import {
 } from "@repo/ui/components/ui/sheet";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
-import {
-  connectToBLEDevice,
-  disconnectToBLEDevice,
-  getCharacteristic,
-  scanDevices,
-  writeCharacteristic,
-} from "../services/ble-connection";
+import { useState } from "react";
+import { receivePaymentService } from "../services/receive-payment-services";
 
 type ReceivePaymentWidgetProps = {
   children: React.ReactNode;
@@ -30,28 +22,25 @@ type ReceivePaymentWidgetProps = {
 export const ReceivePaymentWidget = ({
   children,
 }: ReceivePaymentWidgetProps) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProccessed, setIsProccessed] = useState(false);
+
   const handleScanDevices = async () => {
-    console.log("Scanning devices...");
-    const scanResponse = await scanDevices();
-    console.log(scanResponse.device);
-    const connectResponse = await connectToBLEDevice(scanResponse.device);
-    console.log(connectResponse.server);
-    const characteristicsResponse = await getCharacteristic(
-      connectResponse.server,
-    );
-    console.log(characteristicsResponse);
-    const writeResponse = await writeCharacteristic(scanResponse.device);
-    console.log(writeResponse);
-    const secondaryCharacteristicsResponse = await getCharacteristic(
-      connectResponse.server,
-    );
-    const secondaryBuffer =
-      await secondaryCharacteristicsResponse.characteristic[0].value.buffer;
-    const data = new DataView(secondaryBuffer);
-    const foo = data.getUint8(0);
-    console.log("secondary value: ", foo);
-    await disconnectToBLEDevice(scanResponse.device);
+    try {
+      setIsProcessing(true);
+      const address = "E1s4jG9evuaaiuTdX8A8";
+      const value = "100";
+      const resp = await receivePaymentService(address, value);
+      if (!resp) throw new Error("Payment no processed");
+      setIsProccessed(true);
+    } catch (error) {
+      console.error(error);
+      setIsProccessed(false);
+    } finally {
+      setIsProcessing(false);
+    }
   };
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -76,7 +65,13 @@ export const ReceivePaymentWidget = ({
           </SheetDescription>
         </SheetHeader>
         <div className="grid gap-4 py-4">
-          <LoaderCircle className="animate-spin text-foreground" />
+          {isProcessing ? (
+            <LoaderCircle className="animate-spin text-foreground" />
+          ) : isProccessed ? (
+            <p>Payment Sent to device</p>
+          ) : (
+            <Button onClick={handleScanDevices}>Retry</Button>
+          )}
         </div>
         <SheetFooter>
           {/* <SheetClose asChild>
