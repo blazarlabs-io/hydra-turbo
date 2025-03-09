@@ -10,6 +10,7 @@ import {
 import { Colors } from "@/constants/Colors";
 import { auth } from "@/lib/firebase/client";
 import { firebaseAuthErrors } from "@/utils/firebaseAuthErrors";
+import { Href, router } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { Image, Modal, ScrollView, useColorScheme, View } from "react-native";
@@ -140,7 +141,15 @@ export const GetStartedScreen = () => {
               <ThemedText type="default" className="opacity-70">
                 Don't have an account?
               </ThemedText>
-              <Button label="Sign up" variant="ghost" fullWidth={false} />
+              <Button
+                onPress={() => {
+                  router.push("/home");
+                  // router.push(privateRoutes.home.root as Href<string>);
+                }}
+                label="Sign up"
+                variant="ghost"
+                fullWidth={false}
+              />
             </View>
           </View>
         </View>

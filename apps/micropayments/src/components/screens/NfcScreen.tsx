@@ -1,7 +1,16 @@
-import { useEffect } from "react";
-import { Image, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  Image,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+  Text,
+} from "react-native";
 import { BleClient } from "../../services/ble-client";
 import { SafeLayout, ThemedText } from "../core";
+import { Colors } from "@/constants/Colors";
+import { cn } from "@/utils/cn";
+import { Platform, Alert } from "react-native";
 
 const DEVICE_NAME = "HydraMerchant";
 const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
@@ -10,21 +19,37 @@ const VALUE_CHARACTERISTIC_UUID = "7f5b388b-5195-4d06-8bbe-2bda381ec89e";
 const RESPONSE_CHARACTERISTIC_UUID = "1f27b6c7-0b7b-434c-82bf-3d7e38bee582";
 
 export const NfcScreen = () => {
-  useEffect(() => {
-    const ble = new BleClient();
-    ble.requestPermissions().then((granted) => {
-      ble
-        .scan(DEVICE_NAME, {
-          SERVICE_UUID,
-          ADDRESS_CHARACTERISTIC_UUID,
-          VALUE_CHARACTERISTIC_UUID,
-          RESPONSE_CHARACTERISTIC_UUID,
-        })
-        .then((characteristics) => {
-          console.log("characteristics:", characteristics);
-        });
-    });
-  }, []);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [address, setAddress] = useState("");
+  const [value, setValue] = useState("");
+  // const [isProcessing, setIsProcessing] = useState(false);
+  const theme = useColorScheme() ?? "light";
+
+  const handlePersmissions = async () => {
+    try {
+      setIsProcessing(true);
+      setAddress("");
+      setValue("");
+      const ble = new BleClient();
+      const granted = await ble.requestPermissions();
+      if (!granted) throw Error("No granted");
+      const characteristics = await ble.scan(DEVICE_NAME, {
+        SERVICE_UUID,
+        ADDRESS_CHARACTERISTIC_UUID,
+        VALUE_CHARACTERISTIC_UUID,
+        RESPONSE_CHARACTERISTIC_UUID,
+      });
+      if (!characteristics) return;
+      console.log("characteristics: ", characteristics);
+      setAddress(characteristics.address ?? "NA");
+      setValue(characteristics.value ?? "NA");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <SafeLayout>
       <View className="items-center justify-center py-4">
@@ -45,6 +70,35 @@ export const NfcScreen = () => {
           Activating NFC technology allows you to pay with your phone in any
           hydrapay compatible terminal.
         </ThemedText>
+      </View>
+      <View className="items-center justify-center">
+        <ThemedText type="default" className="max-w-[70%] text-center">
+          Address: {address}
+        </ThemedText>
+        <ThemedText type="default" className="max-w-[70%] text-center">
+          Value: {value}
+        </ThemedText>
+      </View>
+      <View className="items-center justify-center">
+        <TouchableOpacity
+          onPress={() => {
+            handlePersmissions();
+          }}
+          className={cn(
+            "my-4",
+            "flex h-[48px] w-[33%] flex-row items-center justify-center gap-x-2",
+            "rounded-[32px] px-[2px]",
+            isProcessing ? "opacity-50" : "opacity-100"
+          )}
+          style={{ backgroundColor: Colors[theme].foreground }}
+          disabled={isProcessing}
+        >
+          <View className="w-20">
+            <Text className="" style={{ color: Colors[theme].background }}>
+              Turn On
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </SafeLayout>
   );

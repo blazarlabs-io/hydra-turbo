@@ -22,12 +22,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        router.push("/home");
-      } else {
-        setUser(null);
-      }
+      if (!user) return;
+      setUser(user);
+      // router.push("/home");
     });
     return unsubscribe;
   }, []);

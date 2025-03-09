@@ -1,26 +1,18 @@
 import { Alert, PermissionsAndroid, Platform } from "react-native";
-import { BleManager } from "react-native-ble-plx";
+import { BleManager, Device, ScanOptions } from "react-native-ble-plx";
 import BluetoothStateManager from "react-native-bluetooth-state-manager";
+
+type DeviceOptions = { [key: string]: string };
+type ScanResolve = { address: string; value: string };
 
 export class BleClient {
   // Properties
-  private manager: any;
+  private manager: BleManager;
+  private counter = 0;
 
   // Constructor
   constructor() {
     this.manager = new BleManager();
-  }
-
-  calculateDistance(
-    referenceRSSI: number,
-    pathLossExponent: number,
-    rssi: number
-  ) {
-    const distance = Math.pow(
-      10,
-      (referenceRSSI - rssi) / (10 * pathLossExponent)
-    );
-    return parseFloat(distance.toFixed(2));
   }
 
   async requestPermissions(): Promise<boolean> {
@@ -64,12 +56,79 @@ export class BleClient {
     return false;
   }
 
-  // Method to get the full name
-  async scan(name: string, serviceOptions: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.manager.startDeviceScan(null, null, (error: any, device: any) => {
-        // console.log("Scanning...");
+  private calculateDistance(pathLossExponent: number, rssi: number) {
+    const referenceRSSI = -59;
+    const distance = Math.pow(
+      10,
+      (referenceRSSI - rssi) / (10 * pathLossExponent)
+    );
+    return parseFloat(distance.toFixed(2));
+  }
 
+  private async deviceHandler(
+    deviceName: string,
+    currDevice: Device,
+    serviceOptions: DeviceOptions
+  ) {
+    const { rssi } = currDevice;
+    const calcDistance = this.calculateDistance(2, rssi ?? 0);
+    const isTargeDevice = currDevice?.name === deviceName;
+    const isInCloser = calcDistance <= 0.2;
+    if (!isTargeDevice || !isInCloser) return;
+    console.log("currDevice: ", currDevice);
+    console.log(calcDistance);
+    // * Stop scanning as it's not necessary if you are scanning for one currDevice
+    this.manager.stopDeviceScan();
+    // * Connect to the currDevice
+    const device = await currDevice.connect();
+    await device.discoverAllServicesAndCharacteristics();
+    console.log("discoverAllServicesAndCharacteristics");
+    // * Read address characteristic
+    const addressCharacteristic = await device.readCharacteristicForService(
+      serviceOptions.SERVICE_UUID,
+      serviceOptions.ADDRESS_CHARACTERISTIC_UUID
+    );
+
+    // * Read value characteristic
+    const valueCharacteristic = await device.readCharacteristicForService(
+      serviceOptions.SERVICE_UUID,
+      serviceOptions.VALUE_CHARACTERISTIC_UUID
+    );
+
+    // * Convert to base64
+    const address = atob(addressCharacteristic.value as string);
+    const value = atob(valueCharacteristic.value as string);
+
+    // * Clean the values stored
+    const res = await device.writeCharacteristicWithResponseForService(
+      serviceOptions.SERVICE_UUID,
+      serviceOptions.VALUE_CHARACTERISTIC_UUID,
+      btoa("")
+    );
+
+    // * Disconnect
+    const isConnected = await device.isConnected();
+    if (isConnected) device.cancelConnection();
+    return {
+      address,
+      value,
+    };
+  }
+
+  // Method to get the full name
+  async scan(deviceName: string, serviceOptions: DeviceOptions) {
+    console.log("Starting scanning...");
+    this.counter = 0;
+    return new Promise<ScanResolve | undefined>((resolve, reject) => {
+      this.manager.startDeviceScan(null, null, async (error, currDevice) => {
+        console.log("Scanning...attempt: ", this.counter);
+        if (this.counter === 150) {
+          this.manager.stopDeviceScan();
+          resolve(undefined);
+          return;
+        }
+        if (!currDevice) return;
+        this.counter += 1;
         if (error) {
           // * Handle error (scanning will be stopped automatically)
           console.log("ERROR:", error.message);
@@ -78,7 +137,7 @@ export class BleClient {
             this.manager.stopDeviceScan();
             BluetoothStateManager.requestToEnable()
               .then((result) => {
-                this.scan(name, serviceOptions);
+                this.scan(deviceName, serviceOptions);
               })
               .catch((error) => {
                 console.log(error.message);
@@ -89,63 +148,19 @@ export class BleClient {
               });
           }
           reject(error.message);
-        } else {
-          if (
-            device?.name === name &&
-            this.calculateDistance(-59, 2, device.rssi) <= 0.2
-          ) {
-            console.log(this.calculateDistance(-59, 2, device.rssi));
-            // * Stop scanning as it's not necessary if you are scanning for one device
-            this.manager.stopDeviceScan();
-            // * Connect to the device
-            device
-              .connect()
-              .then(async (device: any) => {
-                // * Dicover all services
-                try {
-                  await device.discoverAllServicesAndCharacteristics();
-
-                  // * Read address characteristic
-                  const addressCharacteristic =
-                    await device.readCharacteristicForService(
-                      serviceOptions.SERVICE_UUID,
-                      serviceOptions.ADDRESS_CHARACTERISTIC_UUID
-                    );
-
-                  // * Read value characteristic
-                  const valueCharacteristic =
-                    await device.readCharacteristicForService(
-                      serviceOptions.SERVICE_UUID,
-                      serviceOptions.VALUE_CHARACTERISTIC_UUID
-                    );
-
-                  // * Convert to base64
-                  const address = atob(addressCharacteristic.value as string);
-                  const value = atob(valueCharacteristic.value as string);
-
-                  // * RESPOND TO BEACON BY WRITING RESPONSE CHARACTERISTIC
-                  const res =
-                    await device.writeCharacteristicWithResponseForService(
-                      serviceOptions.SERVICE_UUID,
-                      serviceOptions.RESPONSE_CHARACTERISTIC_UUID,
-                      btoa("200")
-                    );
-
-                  // * Disconnect
-                  if (device.isConnected()) device.cancelConnection();
-                  resolve({
-                    address,
-                    value,
-                  });
-                } catch (error) {
-                  reject(error);
-                }
-              })
-              .catch((error: any) => {
-                console.log("Connection error", error);
-                reject(error);
-              });
-          }
+          return;
+        }
+        try {
+          const data = await this.deviceHandler(
+            deviceName,
+            currDevice,
+            serviceOptions
+          );
+          if (!data) return;
+          resolve(data);
+        } catch (error) {
+          console.log("Connection error", error);
+          reject(error);
         }
       });
     });
