@@ -30,8 +30,13 @@ export const receivePaymentService = async (address: string, value: string) => {
       VALUE_CHARACTERISTIC_UUID,
     );
     if (!addressChart || !valueChart) throw new Error("Can not process");
+
+    console.log("Creating transactions...");
+    const response = await postPaymentTrasnsactionService(address, value);
+    const transactionRef = response.id;
+
     console.log("Writing data...");
-    await writeCharacteristicService(addressChart, address);
+    await writeCharacteristicService(addressChart, transactionRef);
     await writeCharacteristicService(valueChart, value);
     console.log("Getting writen data values...");
     const newAddress = await getCharacteristicValueService(addressChart);
@@ -41,4 +46,24 @@ export const receivePaymentService = async (address: string, value: string) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+const postPaymentTrasnsactionService = async (
+  address: string,
+  value: string,
+) => {
+  const resp = await fetch("/api/post-payment", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      targetRef: address,
+      amount: value,
+      invoiceRef: "some-ref",
+    }),
+  });
+
+  return await resp.json();
 };

@@ -28,11 +28,14 @@ export const ReceivePaymentWidget = ({
   const handleScanDevices = async () => {
     try {
       setIsProcessing(true);
-      const address = "E1s4jG9evuaaiuTdX8A8";
-      const value = "100";
-      const resp = await receivePaymentService(address, value);
+      const address = "My-merchant-wallet";
+      const value = Math.floor(Math.random() * 1000) + 1;
+      const resp = await receivePaymentService(address, `${value}`);
       if (!resp) throw new Error("Payment no processed");
       setIsProccessed(true);
+      setTimeout(() => {
+        setIsProccessed(false);
+      }, 5000);
     } catch (error) {
       console.error(error);
       setIsProccessed(false);
