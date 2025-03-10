@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
     if (!req.body) return;
     const data = await req.json();
-    console.log("body", data);
+
     const app = await initAdmin();
     const paymentTransactionRef = app
       .firestore()

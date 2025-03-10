@@ -10,7 +10,8 @@ import { BleClient } from "../../services/ble-client";
 import { SafeLayout, ThemedText } from "../core";
 import { Colors } from "@/constants/Colors";
 import { cn } from "@/utils/cn";
-import { Platform, Alert } from "react-native";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase/client";
 
 const DEVICE_NAME = "HydraMerchant";
 const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
@@ -40,9 +41,17 @@ export const NfcScreen = () => {
         RESPONSE_CHARACTERISTIC_UUID,
       });
       if (!characteristics) return;
-      console.log("characteristics: ", characteristics);
-      setAddress(characteristics.address ?? "NA");
-      setValue(characteristics.value ?? "NA");
+      const docRef = doc(
+        db,
+        "payment-transactions",
+        characteristics.address ?? "NA"
+      );
+      const currentDoc = await getDoc(docRef);
+      if (!currentDoc.exists()) return;
+      const paymentData = { ...currentDoc.data() };
+
+      setAddress(paymentData.targetRef ?? "NA");
+      setValue(paymentData.amount ?? "NA");
     } catch (error) {
       console.log(error);
     } finally {
