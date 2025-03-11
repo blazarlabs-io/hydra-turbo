@@ -11,3 +11,4 @@ export { AccountCard } from "./Card/AccountCard";
 export { Avatar } from "./Avatar/Avatar";
 export { ScanButton } from "./Button/ScanButton";
 export { ListButton } from "./Button/ListButton";
+export { Spinner } from "./spinner";

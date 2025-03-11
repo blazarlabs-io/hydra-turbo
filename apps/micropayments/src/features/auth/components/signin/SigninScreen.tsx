@@ -1,80 +1,51 @@
 import {
   Button,
   GoogleIcon,
-  Icons,
   Input,
   SafeLayout,
   ThemedText,
-  ThemedView,
 } from "@/components/core";
-import { Colors } from "@/constants/Colors";
-import { auth } from "@/lib/firebase/client";
-import { firebaseAuthErrors } from "@/utils/firebaseAuthErrors";
-import { Href, router } from "expo-router";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { router } from "expo-router";
 import { useState } from "react";
-import { Image, Modal, ScrollView, useColorScheme, View } from "react-native";
+import { Image, ScrollView, View } from "react-native";
+import { SigninErrorModal } from "./SigninErrorModal";
+import { useSignin } from "../../hooks/useSignin";
+import { useAuth } from "../../contexts/authContext";
 
-export const GetStartedScreen = () => {
-  // * HOOKS
-  const theme = useColorScheme() ?? "light";
+export const SigninScreen = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-  // * STATES
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const { isLoading, signIn } = useSignin();
+  const { setUser } = useAuth();
 
   const handleSignIn = async () => {
-    await signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-      })
-      .catch((error) => {
-        console.log("error", firebaseAuthErrors[error.code]);
-        setError(firebaseAuthErrors[error.code]);
-        setModalVisible(true);
-      });
+    try {
+      setErrorMessage("");
+      const resp = await signIn(email, password);
+      if (!resp) return;
+      if (typeof resp === "string") {
+        setShowModal(true);
+        setErrorMessage(resp);
+      } else {
+        setUser(resp.user);
+        router.push("/home");
+      }
+    } catch (error) {
+      setErrorMessage("Error in signin");
+    }
   };
 
   return (
     <SafeLayout>
       {/* * MODAL START */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View className="flex h-full w-full items-center justify-center bg-black/60">
-          <ThemedView className="flex max-w-[75%] flex-col items-center justify-center rounded-[32px] border p-8">
-            <View className="flex w-full flex-row items-center justify-center gap-x-4">
-              <View
-                style={{
-                  backgroundColor: Colors[theme].error,
-                  borderColor: Colors[theme].foreground,
-                  borderWidth: 1,
-                }}
-                className="rounded-[16px] p-4"
-              >
-                <Icons.ErrorCircle />
-              </View>
-              <ThemedText className="max-w-[75%]">{error}</ThemedText>
-            </View>
-            <View className="mt-8 flex w-full flex-row items-center justify-end">
-              <Button
-                variant="link"
-                label="Close"
-                fullWidth={false}
-                onPress={() => setModalVisible(!modalVisible)}
-              />
-            </View>
-          </ThemedView>
-        </View>
-      </Modal>
+      <SigninErrorModal
+        showModal={showModal}
+        closeModal={() => setShowModal((old) => !old)}
+        errorMessage={errorMessage}
+      />
       {/* * MODAL END */}
       <ScrollView>
         <View className="flex h-full w-full flex-col items-center justify-start bg-transparent">
@@ -128,10 +99,15 @@ export const GetStartedScreen = () => {
               </View>
             </View>
             <View>
-              <Button label="Forgot Password?" variant="ghost" />
+              <Button
+                label="Forgot Password?"
+                variant="ghost"
+                disabled={isLoading}
+              />
             </View>
             <View className="mt-4 flex w-full items-center justify-center">
               <Button
+                disabled={isLoading}
                 label="Continue"
                 variant="primary"
                 onPress={() => handleSignIn()}
@@ -142,9 +118,9 @@ export const GetStartedScreen = () => {
                 Don't have an account?
               </ThemedText>
               <Button
+                disabled={isLoading}
                 onPress={() => {
-                  router.push("/home");
-                  // router.push(privateRoutes.home.root as Href<string>);
+                  router.push("/(auth)/signup/");
                 }}
                 label="Sign up"
                 variant="ghost"

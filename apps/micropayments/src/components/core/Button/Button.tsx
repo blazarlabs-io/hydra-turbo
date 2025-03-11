@@ -16,17 +16,20 @@ export interface ButtonProps {
   fullWidth?: boolean;
   icon?: any;
   className?: string;
+  disabled?: boolean;
 }
 
-export const Button = ({
-  variant,
-  size = "md",
-  onPress,
-  label,
-  fullWidth = true,
-  icon,
-  className,
-}: ButtonProps) => {
+export const Button = (props: ButtonProps) => {
+  const {
+    variant,
+    size = "md",
+    onPress,
+    label,
+    fullWidth = true,
+    icon,
+    className,
+    disabled,
+  } = props;
   const theme = useColorScheme() ?? "light";
 
   const styles = StyleSheet.create({
@@ -42,6 +45,7 @@ export const Button = ({
       borderColor: Colors[theme]["primary-foreground"],
       borderWidth: 1,
       width: fullWidth ? "100%" : undefined,
+      opacity: disabled ? 50 : 100,
     },
     outline: {
       flexDirection: "row",
@@ -55,6 +59,7 @@ export const Button = ({
       borderColor: Colors[theme]["primary-foreground"],
       borderWidth: 1,
       width: fullWidth ? "100%" : undefined,
+      opacity: disabled ? 50 : 100,
     },
     ghost: {
       flexDirection: "row",
@@ -68,6 +73,7 @@ export const Button = ({
       textDecorationColor: Colors[theme]["primary-foreground"],
       textDecorationStyle: "solid",
       width: fullWidth ? "100%" : undefined,
+      opacity: disabled ? 50 : 100,
     },
     link: {
       flexDirection: "row",
@@ -80,6 +86,7 @@ export const Button = ({
       textDecorationLine: "underline",
       textDecorationColor: Colors[theme]["primary-foreground"],
       textDecorationStyle: "solid",
+      opacity: disabled ? 50 : 100,
     },
   });
 
@@ -87,6 +94,7 @@ export const Button = ({
 
   return (
     <TouchableOpacity
+      disabled={disabled}
       onPress={onPress}
       className={cn("relative", className)}
       style={[

@@ -1,4 +1,4 @@
-import { AuthProvider } from "./authContext";
+import { AuthProvider } from "@/features/auth";
 import { WalletProvider } from "./walletContext";
 import { ExchangeProvider } from "./exchangeContext";
 
