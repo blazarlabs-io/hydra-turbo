@@ -1,6 +1,5 @@
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { useAuth } from "@/features/auth";
+import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
@@ -9,6 +8,13 @@ import "react-native-reanimated";
 SplashScreen.preventAutoHideAsync();
 
 export default function PrivateLayout() {
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) return;
+    router.replace("/");
+  }, []);
+
   return (
     <Stack>
       <Stack.Screen name="home" options={{ headerShown: false }} />

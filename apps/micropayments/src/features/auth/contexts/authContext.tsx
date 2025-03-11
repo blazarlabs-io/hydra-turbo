@@ -1,13 +1,18 @@
 import { auth } from "@/lib/firebase/client";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { createContext, useContext, useEffect, useState } from "react";
-import { router } from "expo-router";
 
 interface ContextInterface {
+  isLoadingAuth: boolean;
   user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
-const AuthContext = createContext<ContextInterface>({ user: null });
+const AuthContext = createContext<ContextInterface>({
+  isLoadingAuth: true,
+  user: null,
+  setUser: () => {},
+});
 
 export const useAuth = () => {
   const context = useContext<ContextInterface>(AuthContext);
@@ -18,10 +23,12 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoadingAuth(false);
       if (!user) return;
       setUser(user);
       // router.push("/home");
@@ -30,6 +37,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ isLoadingAuth, user, setUser }}>
+      {children}
+    </AuthContext.Provider>
   );
 };

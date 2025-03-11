@@ -4,17 +4,18 @@ import { Avatar, Button, ListButton } from "../core";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { router } from "expo-router";
-import { useAuth } from "@/context/authContext";
+import { useAuth } from "@/features/auth/contexts/authContext";
 import { LinearGradient } from "expo-linear-gradient";
 import { Logout } from "../core/Icon/Logout";
 
 export const UserProfileScreen = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const handleSignOut = async () => {
     signOut(auth)
       .then(() => {
         // Sign-out successful.
+        setUser(null);
         router.replace("/");
       })
       .catch((error) => {
