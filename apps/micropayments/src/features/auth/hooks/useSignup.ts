@@ -5,6 +5,7 @@ import {
 } from "@/lib/utils/interfaceChecker";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
+// import { setMicropaymentRoleService } from "../services/authServices";
 
 export const useSignup = () => {
   const [isLoading, setIsProcessing] = useState(false);
@@ -16,6 +17,9 @@ export const useSignup = () => {
         email,
         password
       );
+      // const idToken = await response.user.getIdToken();
+      // console.log({ idToken });
+      // setMicropaymentRoleService(idToken);
       return response;
     } catch (error: any) {
       // eslint-disable-line @typescript-eslint/no-explicit-any
