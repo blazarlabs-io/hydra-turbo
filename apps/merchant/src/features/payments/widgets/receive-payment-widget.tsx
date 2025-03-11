@@ -12,9 +12,7 @@ import {
 } from "@repo/ui/components/ui/sheet";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
-import { receivePaymentService } from "../services/receive-payment-services";
-
+import { ReceivePaymentForm } from "../components/";
 type ReceivePaymentWidgetProps = {
   children: React.ReactNode;
 };
@@ -22,65 +20,32 @@ type ReceivePaymentWidgetProps = {
 export const ReceivePaymentWidget = ({
   children,
 }: ReceivePaymentWidgetProps) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isProccessed, setIsProccessed] = useState(false);
-
-  const handleScanDevices = async () => {
-    try {
-      setIsProcessing(true);
-      const address = "My-merchant-wallet";
-      const value = Math.floor(Math.random() * 1000) + 1;
-      const resp = await receivePaymentService(address, `${value}`);
-      if (!resp) throw new Error("Payment no processed");
-      setIsProccessed(true);
-      setTimeout(() => {
-        setIsProccessed(false);
-      }, 5000);
-    } catch (error) {
-      console.error(error);
-      setIsProccessed(false);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button onClick={handleScanDevices}>{children}</Button>
+        <Button>{children}</Button>
       </SheetTrigger>
       <SheetContent
         side="bottom"
-        className="flex flex-col items-center justify-center"
+        className="flex flex-row items-center justify-center"
       >
-        <SheetHeader className="flex flex-col items-center justify-center">
-          <Image
-            src="/images/receive-payment.png"
-            alt="Receive Payment"
-            width={212}
-            height={48}
-            className=""
-          />
-          <SheetTitle>Awaiting payment</SheetTitle>
-          <SheetDescription>
-            Make sure the client's phone hovers over the hydrapay payment
-            terminal.
-          </SheetDescription>
-        </SheetHeader>
-        <div className="grid gap-4 py-4">
-          {isProcessing ? (
-            <LoaderCircle className="animate-spin text-foreground" />
-          ) : isProccessed ? (
-            <p>Payment Sent to device</p>
-          ) : (
-            <Button onClick={handleScanDevices}>Retry</Button>
-          )}
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <SheetHeader className="flex flex-col items-center justify-center ">
+            <SheetTitle>Receive payment</SheetTitle>
+            <SheetDescription>
+              Make sure the client's phone hovers over the Hydrapay payment -
+              terminal.
+            </SheetDescription>
+          </SheetHeader>
+          <ReceivePaymentForm />
         </div>
-        <SheetFooter>
-          {/* <SheetClose asChild>
-            <Button type="submit">Save changes</Button>
-          </SheetClose> */}
-        </SheetFooter>
+        <Image
+          src="/images/receive-payment.png"
+          alt="Receive Payment"
+          width={212}
+          height={48}
+          className=""
+        />
       </SheetContent>
     </Sheet>
   );

@@ -1,16 +1,17 @@
 import {
+  SERVICE_UUID,
+  DEVICE_NAME,
+  ADDRESS_CHARACTERISTIC_UUID,
+  VALUE_CHARACTERISTIC_UUID,
+} from "../data";
+import {
   connectToBLEDeviceService,
   disconnectToBLEDeviceService,
-  getCharacteristicService,
-  getCharacteristicValueService,
+  getCharacteristicFromService,
+  getCharacteristicValueFromService,
   scanDevicesService,
   writeCharacteristicService,
 } from "./ble-connection";
-
-const DEVICE_NAME = "HydraMerchant";
-const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-const ADDRESS_CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
-const VALUE_CHARACTERISTIC_UUID = "7f5b388b-5195-4d06-8bbe-2bda381ec89e";
 
 export const receivePaymentService = async (address: string, value: string) => {
   try {
@@ -21,26 +22,26 @@ export const receivePaymentService = async (address: string, value: string) => {
     const service = await connectToBLEDeviceService(device, SERVICE_UUID);
     if (!service) throw new Error("Service not found");
     console.log("Getting Caracteristics...");
-    const addressChart = await getCharacteristicService(
+    const addressChart = await getCharacteristicFromService(
       service,
       ADDRESS_CHARACTERISTIC_UUID,
     );
-    const valueChart = await getCharacteristicService(
+    const valueChart = await getCharacteristicFromService(
       service,
       VALUE_CHARACTERISTIC_UUID,
     );
     if (!addressChart || !valueChart) throw new Error("Can not process");
 
     console.log("Creating transactions...");
-    const response = await postPaymentTrasnsactionService(address, value);
+    const response = await postPaymentTransactionService(address, value);
     const transactionRef = response.id;
 
     console.log("Writing data...");
     await writeCharacteristicService(addressChart, transactionRef);
     await writeCharacteristicService(valueChart, value);
-    console.log("Getting writen data values...");
-    const newAddress = await getCharacteristicValueService(addressChart);
-    const newValue = await getCharacteristicValueService(valueChart);
+    console.log("Getting written data values...");
+    const newAddress = await getCharacteristicValueFromService(addressChart);
+    const newValue = await getCharacteristicValueFromService(valueChart);
     await disconnectToBLEDeviceService(device);
     return { newAddress, newValue };
   } catch (error) {
@@ -48,7 +49,7 @@ export const receivePaymentService = async (address: string, value: string) => {
   }
 };
 
-const postPaymentTrasnsactionService = async (
+const postPaymentTransactionService = async (
   address: string,
   value: string,
 ) => {

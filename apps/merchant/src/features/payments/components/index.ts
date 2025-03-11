@@ -1,2 +1,2 @@
-import { ReceivePaymentCard } from "./receive-payment-card";
-export { ReceivePaymentCard };
+import { ReceivePaymentForm } from "./receive-payment-form";
+export { ReceivePaymentForm };

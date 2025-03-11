@@ -1,3 +1,5 @@
+import { BLECharacteristic, BLEDevice, BLEService } from "../types";
+
 export async function scanDevicesService(
   deviceName: string,
   optionalServices: string[],
@@ -7,7 +9,7 @@ export async function scanDevicesService(
   }
 
   try {
-    const device = await navigator.bluetooth.requestDevice({
+    const device = await (navigator.bluetooth as any).requestDevice({
       acceptAllDevices: false,
       filters: [{ name: deviceName, services: optionalServices }],
     });
@@ -20,7 +22,7 @@ export async function scanDevicesService(
 }
 
 export async function connectToBLEDeviceService(
-  device: BluetoothDevice,
+  device: BLEDevice,
   serviceId: string,
 ) {
   if (device === null) return;
@@ -34,8 +36,8 @@ export async function connectToBLEDeviceService(
   }
 }
 
-export async function getCharacteristicService(
-  service: BluetoothRemoteGATTService,
+export async function getCharacteristicFromService(
+  service: BLEService,
   characteristicId: string,
 ) {
   try {
@@ -46,8 +48,8 @@ export async function getCharacteristicService(
   }
 }
 
-export async function getCharacteristicValueService(
-  characteristic: BluetoothRemoteGATTCharacteristic,
+export async function getCharacteristicValueFromService(
+  characteristic: BLECharacteristic,
 ) {
   try {
     const value = await characteristic.readValue();
@@ -60,20 +62,20 @@ export async function getCharacteristicValueService(
 }
 
 export async function writeCharacteristicService(
-  characteristic: BluetoothRemoteGATTCharacteristic,
+  characteristic: BLECharacteristic,
   value: string,
 ) {
   try {
     const encoder = new TextEncoder();
-    const envodedValue = encoder.encode(value);
-    await characteristic.writeValue(envodedValue);
+    const encodedValue = encoder.encode(value);
+    await characteristic.writeValue(encodedValue);
   } catch (error) {
     console.log(error, "Error writing characteristic");
     return { success: false };
   }
 }
 
-export async function disconnectToBLEDeviceService(device: BluetoothDevice) {
+export async function disconnectToBLEDeviceService(device: BLEDevice) {
   try {
     device?.gatt?.disconnect();
   } catch (error) {

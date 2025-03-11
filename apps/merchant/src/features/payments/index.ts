@@ -1,2 +1,2 @@
-import { ReceivePaymentCard } from "./components";
-export { ReceivePaymentCard };
+import { ReceivePaymentWidget } from "./widgets";
+export { ReceivePaymentWidget };

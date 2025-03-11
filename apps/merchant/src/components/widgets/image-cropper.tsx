@@ -165,12 +165,14 @@ const Output = ({ croppedArea, src }: any) => {
       className="relative h-full w-full overflow-hidden"
       style={{ paddingBottom: `${100 / CROP_AREA_ASPECT}%` }}
     >
-      <img
-        className="z-1 absolute left-0 top-0 h-full w-full rounded-md"
-        src={src}
-        alt=""
-        style={imageStyle}
-      />
+      <a href="">
+        <img
+          className="z-1 absolute left-0 top-0 h-full w-full rounded-md"
+          src={src}
+          alt=""
+          style={imageStyle}
+        />
+      </a>
     </div>
   );
 };
