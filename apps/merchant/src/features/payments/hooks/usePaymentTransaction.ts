@@ -8,6 +8,7 @@ type PaymentTransaction = {
   invoiceRef: string;
   processed: boolean;
   targetRef: string;
+  merchantName: string;
 };
 
 export const usePaymentTransaction = (paymentTransactionId: string) => {

@@ -66,7 +66,8 @@ const postPaymentTransactionService = async (
     body: JSON.stringify({
       targetRef: address,
       amount: value,
-      invoiceRef: "some-ref",
+      merchantName: "AdaPay Hub",
+      invoiceRef: "aph-" + new Date().getTime(),
     }),
   });
 

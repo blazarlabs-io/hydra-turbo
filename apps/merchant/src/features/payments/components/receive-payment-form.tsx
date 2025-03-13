@@ -50,40 +50,46 @@ export function ReceivePaymentForm() {
         <Card>
           <CardContent className="flex flex-col space-y-4">
             {paymentTransaction ? (
-              paymentTransaction.processed ? (
-                <div className="flex w-full flex-col items-start justify-start gap-2">
-                  <CardHeader className="text-3xl font-bold foreground text-center w-full">
+              <div className="flex w-full flex-col items-start justify-start gap-2">
+                {paymentTransaction.processed ? (
+                  <CardHeader className="text-3xl font-bold foreground text-center w-full text-green-400">
                     Payment Successed
                   </CardHeader>
-                  <div className="grid items-center gap-2">
-                    <p className="text-lg font-bold">
-                      <span className="font-semibold text-muted-foreground">
-                        Invoice:&nbsp;
-                      </span>
-                      {paymentTransaction.invoiceRef}
-                    </p>
-                    <p className="text-lg font-bold">
-                      <span className="font-semibold text-muted-foreground">
-                        Amount:&nbsp;
-                      </span>
-                      ${paymentTransaction.amount}
-                      <span className="font-semibold text-muted-foreground">
-                        &nbsp;USD
-                      </span>
-                    </p>
-                    <p className="text-lg font-bold">
-                      <span className="font-semibold text-muted-foreground">
-                        Merchant Wallet:&nbsp;
-                      </span>
-                      {paymentTransaction.targetRef}
-                    </p>
-                  </div>
+                ) : (
+                  <CardHeader className="text-3xl font-bold foreground text-center w-full text-blue-300">
+                    Waiting to be paid
+                  </CardHeader>
+                )}
+                <div className="grid items-center gap-2">
+                  <p className="text-lg font-bold">
+                    <span className="font-semibold text-muted-foreground">
+                      Invoice:&nbsp;
+                    </span>
+                    {paymentTransaction.invoiceRef}
+                  </p>
+                  <p className="text-lg font-bold">
+                    <span className="font-semibold text-muted-foreground">
+                      Amount:&nbsp;
+                    </span>
+                    ${paymentTransaction.amount}
+                    <span className="font-semibold text-muted-foreground">
+                      &nbsp;USD
+                    </span>
+                  </p>
+                  <p className="text-lg font-bold">
+                    <span className="font-semibold text-muted-foreground">
+                      Merchant:&nbsp;
+                    </span>
+                    {paymentTransaction.merchantName}
+                  </p>
+                  <p className="text-lg font-bold">
+                    <span className="font-semibold text-muted-foreground">
+                      Merchant Wallet:&nbsp;
+                    </span>
+                    {paymentTransaction.targetRef}
+                  </p>
                 </div>
-              ) : (
-                <CardHeader className="text-3xl font-bold foreground text-center w-full">
-                  Waiting to be paid
-                </CardHeader>
-              )
+              </div>
             ) : (
               <>
                 <CardHeader className="text-3xl font-bold foreground text-center w-full">
