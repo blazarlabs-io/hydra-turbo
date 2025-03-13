@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const newData = await paymentTransactionRef.add({
       ...data,
       createdAt: new Date().toISOString(),
-      provessed: false,
+      processed: false,
     });
     const newDoc = await newData.get();
 

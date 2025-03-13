@@ -4,20 +4,24 @@ import { Card, CardContent, CardHeader } from "@repo/ui/components/ui/card";
 import { receivePaymentService } from "../services";
 import { useState } from "react";
 import { useToast } from "@repo/ui/hooks/use-toast";
+import { usePaymentTransaction } from "../hooks/usePaymentTransaction";
 
 export function ReceivePaymentForm() {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isProcessed, setIsProcessed] = useState(false);
-  const [wallet, setWallet] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [paymentTransactionId, setPaymentTransactionId] = useState("");
   const [amount, setAmount] = useState("");
   const { toast } = useToast();
+  const { paymentTransaction } = usePaymentTransaction(paymentTransactionId);
 
   const sendToDevice = async () => {
     try {
-      setIsProcessing(true);
-      // const address = "My-merchant-wallet";
+      setIsLoading(true);
+      setPaymentTransactionId("");
+
+      const walletAddress = "My-merchant-wallet";
       // const value = Math.floor(Math.random() * 1000) + 1;
-      const resp = await receivePaymentService(wallet, `${amount}`);
+      const resp = await receivePaymentService(walletAddress, `${amount}`);
+
       if (!resp) {
         toast({
           variant: "destructive",
@@ -26,19 +30,17 @@ export function ReceivePaymentForm() {
         });
         throw new Error("Payment no processed");
       }
-      setIsProcessed(true);
+
+      setPaymentTransactionId(resp.transactionRef);
       toast({
         title: "Payment Processed",
         description: "Your payment information has been sent.",
       });
-      setTimeout(() => {
-        setIsProcessed(false);
-      }, 1000);
     } catch (error) {
       console.error(error);
-      setIsProcessed(false);
+      setIsLoading(false);
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
@@ -46,26 +48,59 @@ export function ReceivePaymentForm() {
     <>
       <div className="w-[400px]">
         <Card>
-          <CardHeader>Payment Data</CardHeader>
           <CardContent className="flex flex-col space-y-4">
-            {isProcessed && <p className="text-green-600">Payment Processed</p>}
-            <Input
-              placeholder="Wallet Address"
-              value={wallet}
-              onChange={(e) => setWallet(e.target.value)}
-            />
-            <Input
-              type="number"
-              placeholder="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-            <Button
-              onClick={sendToDevice}
-              disabled={!wallet || !amount || isProcessing}
-            >
-              {isProcessing ? "Processing..." : "Send Payment"}
-            </Button>
+            {paymentTransaction ? (
+              paymentTransaction.processed ? (
+                <div className="flex w-full flex-col items-start justify-start gap-2">
+                  <CardHeader className="text-3xl font-bold foreground text-center w-full">
+                    Payment Successed
+                  </CardHeader>
+                  <div className="grid items-center gap-2">
+                    <p className="text-lg font-bold">
+                      <span className="font-semibold text-muted-foreground">
+                        Invoice:&nbsp;
+                      </span>
+                      {paymentTransaction.invoiceRef}
+                    </p>
+                    <p className="text-lg font-bold">
+                      <span className="font-semibold text-muted-foreground">
+                        Amount:&nbsp;
+                      </span>
+                      ${paymentTransaction.amount}
+                      <span className="font-semibold text-muted-foreground">
+                        &nbsp;USD
+                      </span>
+                    </p>
+                    <p className="text-lg font-bold">
+                      <span className="font-semibold text-muted-foreground">
+                        Merchant Wallet:&nbsp;
+                      </span>
+                      {paymentTransaction.targetRef}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <CardHeader className="text-3xl font-bold foreground text-center w-full">
+                  Waiting to be paid
+                </CardHeader>
+              )
+            ) : (
+              <>
+                <CardHeader className="text-3xl font-bold foreground text-center w-full">
+                  Payment Data
+                </CardHeader>
+                <Input
+                  type="number"
+                  placeholder="amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  disabled={isLoading}
+                />
+                <Button onClick={sendToDevice} disabled={!amount || isLoading}>
+                  {isLoading ? "Loading..." : "Send Payment"}
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

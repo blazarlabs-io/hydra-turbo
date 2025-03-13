@@ -18,9 +18,11 @@ export const receivePaymentService = async (address: string, value: string) => {
     console.log("Scanning devices...");
     const device = await scanDevicesService(DEVICE_NAME, [SERVICE_UUID]);
     if (!device) throw new Error("Deviced not found");
+
     console.log("Getting Service...");
     const service = await connectToBLEDeviceService(device, SERVICE_UUID);
     if (!service) throw new Error("Service not found");
+
     console.log("Getting Caracteristics...");
     const addressChart = await getCharacteristicFromService(
       service,
@@ -39,11 +41,13 @@ export const receivePaymentService = async (address: string, value: string) => {
     console.log("Writing data...");
     await writeCharacteristicService(addressChart, transactionRef);
     await writeCharacteristicService(valueChart, value);
+
     console.log("Getting written data values...");
     const newAddress = await getCharacteristicValueFromService(addressChart);
     const newValue = await getCharacteristicValueFromService(valueChart);
     await disconnectToBLEDeviceService(device);
-    return { newAddress, newValue };
+
+    return { newAddress, newValue, transactionRef };
   } catch (error) {
     console.error(error);
   }
