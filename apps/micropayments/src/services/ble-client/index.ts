@@ -82,6 +82,7 @@ export class BleClient {
     // * Connect to the currDevice
     const device = await currDevice.connect();
     await device.discoverAllServicesAndCharacteristics();
+
     console.log("discoverAllServicesAndCharacteristics");
     // * Read address characteristic
     const addressCharacteristic = await device.readCharacteristicForService(
@@ -99,12 +100,12 @@ export class BleClient {
     const address = atob(addressCharacteristic.value as string);
     const value = atob(valueCharacteristic.value as string);
 
-    // * Clean the values stored
-    const res = await device.writeCharacteristicWithResponseForService(
-      serviceOptions.SERVICE_UUID,
-      serviceOptions.VALUE_CHARACTERISTIC_UUID,
-      btoa("")
-    );
+    // // * Clean the values stored
+    // const res = await device.writeCharacteristicWithResponseForService(
+    //   serviceOptions.SERVICE_UUID,
+    //   serviceOptions.VALUE_CHARACTERISTIC_UUID,
+    //   btoa("")
+    // );
 
     // * Disconnect
     const isConnected = await device.isConnected();

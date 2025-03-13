@@ -10,8 +10,7 @@ import { BleClient } from "../../services/ble-client";
 import { SafeLayout, ThemedText } from "../core";
 import { Colors } from "@/constants/Colors";
 import { cn } from "@/utils/cn";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
+import { PaymentConirmationModal } from "@/features/payments";
 
 const DEVICE_NAME = "HydraMerchant";
 const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
@@ -21,19 +20,20 @@ const RESPONSE_CHARACTERISTIC_UUID = "1f27b6c7-0b7b-434c-82bf-3d7e38bee582";
 
 export const NfcScreen = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [address, setAddress] = useState("");
-  const [value, setValue] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [paymentTransactionId, setPaymentTransactionId] = useState("");
   // const [isProcessing, setIsProcessing] = useState(false);
   const theme = useColorScheme() ?? "light";
 
   const handlePersmissions = async () => {
     try {
       setIsProcessing(true);
-      setAddress("");
-      setValue("");
+      setPaymentTransactionId("");
+
       const ble = new BleClient();
       const granted = await ble.requestPermissions();
       if (!granted) throw Error("No granted");
+
       const characteristics = await ble.scan(DEVICE_NAME, {
         SERVICE_UUID,
         ADDRESS_CHARACTERISTIC_UUID,
@@ -41,17 +41,9 @@ export const NfcScreen = () => {
         RESPONSE_CHARACTERISTIC_UUID,
       });
       if (!characteristics) return;
-      const docRef = doc(
-        db,
-        "payment-transactions",
-        characteristics.address ?? "NA"
-      );
-      const currentDoc = await getDoc(docRef);
-      if (!currentDoc.exists()) return;
-      const paymentData = { ...currentDoc.data() };
 
-      setAddress(paymentData.targetRef ?? "NA");
-      setValue(paymentData.amount ?? "NA");
+      setPaymentTransactionId(characteristics.address);
+      setShowModal(!!characteristics.address);
     } catch (error) {
       console.log(error);
     } finally {
@@ -59,8 +51,18 @@ export const NfcScreen = () => {
     }
   };
 
+  const closeHandler = () => {
+    setShowModal(false);
+    setPaymentTransactionId("");
+  };
+
   return (
     <SafeLayout>
+      <PaymentConirmationModal
+        showModal={showModal}
+        closeModal={closeHandler}
+        paymentTransactionId={paymentTransactionId}
+      />
       <View className="items-center justify-center py-4">
         <ThemedText type="subtitle" className="text-center">
           NFC Payments
@@ -81,14 +83,6 @@ export const NfcScreen = () => {
         </ThemedText>
       </View>
       <View className="items-center justify-center">
-        <ThemedText type="default" className="max-w-[70%] text-center">
-          Address: {address}
-        </ThemedText>
-        <ThemedText type="default" className="max-w-[70%] text-center">
-          Value: {value}
-        </ThemedText>
-      </View>
-      <View className="items-center justify-center">
         <TouchableOpacity
           onPress={() => {
             handlePersmissions();
@@ -104,7 +98,7 @@ export const NfcScreen = () => {
         >
           <View className="w-20">
             <Text className="" style={{ color: Colors[theme].background }}>
-              Turn On
+              {isProcessing ? "Reading..." : "Turn On"}
             </Text>
           </View>
         </TouchableOpacity>
