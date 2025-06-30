@@ -14,8 +14,8 @@ export const HomePage = () => {
   return (
     <>
       <div className="mb-[64px] flex w-full flex-col gap-[48px]">
-        <section className="flex h-full w-full flex-col px-48 py-16">
-          <div className="relative flex justify-center items-center">
+        <section className="flex flex-col w-full h-full px-48 py-16">
+          <div className="relative flex items-center justify-center">
             <Image
               src="/images/hero-image.png"
               alt="Hero image"
@@ -23,7 +23,7 @@ export const HomePage = () => {
               height={300}
             />
           </div>
-          <div className="flex flex-col w-full items-center justify-center gap-2">
+          <div className="flex flex-col items-center justify-center w-full gap-2">
             <h1 className="text-5xl text-center font-medium leading-[64px] gap-2 flex items-center justify-center">
               Welcome to
               <Image

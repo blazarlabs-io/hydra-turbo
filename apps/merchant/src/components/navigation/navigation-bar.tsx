@@ -12,27 +12,30 @@ import { Logo } from "../assets/logo";
 import { useAuth } from "@/context/auth";
 import { Separator } from "@repo/ui/components/ui/separator";
 import { LocaleSwitcher } from "@/components/widgets/locale-switcher/locale-switcher";
+import { useTheme } from "next-themes";
+import Image from "next/image";
 
 export const NavigationBar = () => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   return (
-    <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
+    <header className="flex items-center w-full h-20 px-4 shrink-0 md:px-6">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="xl:hidden">
-            <MenuIcon className="h-6 w-6" />
+            <MenuIcon className="w-6 h-6" />
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
           <SheetTitle></SheetTitle>
-          <Link href="/home" className="mr-6 hidden xl:flex" prefetch={false}>
+          <Link href="/home" className="hidden mr-6 xl:flex" prefetch={false}>
             <Logo className="" />
           </Link>
         </SheetContent>
       </Sheet>
-      <div className="flex w-full items-center justify-between">
+      <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-6">
-          <Link href="/home" className="mr-6 hidden xl:flex" prefetch={false}>
+          <Link href="/home" className="hidden mr-6 xl:flex" prefetch={false}>
             <Logo className="" />
           </Link>
           <nav className="hidden gap-6 xl:flex"></nav>

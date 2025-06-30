@@ -7,13 +7,13 @@ import { ThemeProvider } from "../context/theme-provider";
 import { Toaster } from "@repo/ui/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Tracecork by Blazar Labs",
-  description: "Trusted solutions for wine producers worldwide.",
+  title: "Hydrapay by Blazar Labs",
+  description: "Trusted solutions for merchants worldwide.",
   openGraph: {
-    title: "Tracecork by Blazar Labs",
-    description: "Trusted solutions for wine producers worldwide.",
-    url: "https://tracecork.com/",
-    siteName: "tracecork.com",
+    title: "Hydrapay by Blazar Labs",
+    description: "Trusted solutions for merchants worldwide.",
+    url: "https://blazarlabs.io/",
+    siteName: "blazarlabs.io",
     images: [
       {
         url: "https://tracecork.com/og.png",
