@@ -19,6 +19,7 @@
     "@vis.gl/react-google-maps": "^1.4.2",
     "axios": "^1.7.9",
     "clsx": "^2.1.1",
+    "cookies-next": "^5.1.0",
     "firebase": "^11.1.0",
     "firebase-admin": "^13.0.1",
     "lodash.isempty": "^4.4.0",

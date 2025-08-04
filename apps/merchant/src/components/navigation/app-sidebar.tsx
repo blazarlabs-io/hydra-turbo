@@ -1,7 +1,7 @@
 "use client";
 
 import { Logo } from "@/components/assets/logo";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "~/src/features/authentication/context/auth-provider";
 import { auth } from "@/lib/firebase/client";
 import {
   Avatar,
@@ -76,7 +76,7 @@ const dataTemplate = {
 };
 export function AppSidebar({ children }: { children: React.ReactNode }) {
   // * HOOKS
-  const { user } = useAuth();
+  const { user, singOutUserHandler } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -84,10 +84,6 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<any>(dataTemplate);
 
   // * HANDLERS
-  const handleSignOut = () => {
-    signOut(auth);
-    router.replace("/home");
-  };
 
   const handleActiveSubItems = (selected: any) => {
     data.navMain.forEach((item: any) => {
@@ -213,7 +209,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                   <DropdownMenuGroup>
                     <DropdownMenuItem
                       className="cursor-pointer"
-                      onClick={handleSignOut}
+                      onClick={singOutUserHandler}
                     >
                       <LogOut />
                       Logout
