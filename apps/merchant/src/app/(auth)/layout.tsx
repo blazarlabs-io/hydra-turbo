@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { AuthLayout } from "@/components/layouts/auth-layout";
 
 export const metadata: Metadata = {
-  title: "Tracecork by Blazar Labs",
-  description: "Trusted solutions for wine producers worldwide.",
+  title: "Hydra",
+  description: "Trusted transactions for Solana users.",
 };
 
 export default function AuthRootLayout({
