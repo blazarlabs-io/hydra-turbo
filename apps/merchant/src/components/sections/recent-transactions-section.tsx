@@ -12,9 +12,11 @@ import {
 } from "@repo/ui/components/ui/table";
 import { Button } from "@repo/ui/components/ui/button";
 import { Copy } from "lucide-react";
+import { useWallet } from "~/src/context/wallet";
 
 export const RecentTransactionsSection = () => {
   const { transactions } = useTransactions();
+  const { current } = useWallet();
 
   return (
     <div className="mt-6">
@@ -24,61 +26,64 @@ export const RecentTransactionsSection = () => {
           <TableCaption>A list of your recent transactions.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Id</TableHead>
+              {/* <TableHead className="w-[100px]">Id</TableHead> */}
               <TableHead>Hash</TableHead>
               <TableHead>Origin</TableHead>
-              <TableHead>Destination</TableHead>
+              {/* <TableHead>Destination</TableHead> */}
               <TableHead className="text-right">Amount</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {transactions?.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell>
-                  <div className="flex items-center">
-                    <span className="font-medium max-w-[164px] truncate">
-                      {transaction.id}
-                    </span>
-                    <Button variant="ghost" className="ml-2 text-xs">
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <span className="font-medium max-w-[164px] truncate">
-                      {transaction.transactionHash}
-                    </span>
-                    <Button variant="ghost" className="ml-2 text-xs">
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <span className="font-medium max-w-[164px] truncate">
-                      {transaction.originWallet.address}
-                    </span>
-                    <Button variant="ghost" className="ml-2 text-xs">
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <span className="font-medium max-w-[164px] truncate">
-                      {transaction.destinationWallet.address}
-                    </span>
-                    <Button variant="ghost" className="ml-2 text-xs">
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  {transaction.ammount}
-                </TableCell>
-              </TableRow>
-            ))}
+            {current &&
+              current.transactions &&
+              current.transactions.length > 0 &&
+              current.transactions?.map((transaction: any) => (
+                <TableRow key={transaction?.txHash}>
+                  {/* <TableCell>
+                    <div className="flex items-center">
+                      <span className="font-medium max-w-[164px] truncate">
+                        {transaction?.id}
+                      </span>
+                      <Button variant="ghost" className="ml-2 text-xs">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell> */}
+                  <TableCell>
+                    <div className="flex items-center">
+                      <span className="max-w-[164px] truncate">
+                        {transaction?.txHash}
+                      </span>
+                      <Button variant="ghost" className="ml-2 text-xs">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <span className="max-w-[164px] truncate">
+                        {transaction?.address}
+                      </span>
+                      <Button variant="ghost" className="ml-2 text-xs">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                  {/* <TableCell>
+                    <div className="flex items-center">
+                      <span className="font-medium max-w-[164px] truncate">
+                        {transaction?.address}
+                      </span>
+                      <Button variant="ghost" className="ml-2 text-xs">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell> */}
+                  <TableCell className="text-right">
+                    ₳ {transaction.assets?.lovelace / 1000000}
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>

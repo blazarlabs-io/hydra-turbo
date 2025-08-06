@@ -39,7 +39,7 @@ export const TransactionsHistory = () => {
                       {transaction.id}
                     </span>
                     <Button variant="ghost" className="ml-2 text-xs">
-                      <Copy className="h-4 w-4" />
+                      <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 </TableCell>
@@ -49,7 +49,7 @@ export const TransactionsHistory = () => {
                       {transaction.transactionHash}
                     </span>
                     <Button variant="ghost" className="ml-2 text-xs">
-                      <Copy className="h-4 w-4" />
+                      <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 </TableCell>
@@ -59,7 +59,7 @@ export const TransactionsHistory = () => {
                       {transaction.originWallet.address}
                     </span>
                     <Button variant="ghost" className="ml-2 text-xs">
-                      <Copy className="h-4 w-4" />
+                      <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 </TableCell>
@@ -69,7 +69,7 @@ export const TransactionsHistory = () => {
                       {transaction.destinationWallet.address}
                     </span>
                     <Button variant="ghost" className="ml-2 text-xs">
-                      <Copy className="h-4 w-4" />
+                      <Copy className="w-4 h-4" />
                     </Button>
                   </div>
                 </TableCell>

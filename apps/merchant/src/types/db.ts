@@ -1,10 +1,5 @@
 import { Timestamp } from "firebase/firestore";
 
-export interface Wallet {
-  address: string;
-  stake: string;
-}
-
 export interface Transaction {
   id: string;
   ammount: number;
@@ -12,6 +7,7 @@ export interface Transaction {
   transactionHash: string;
   originWallet: Wallet;
   destinationWallet: Wallet;
+  symbol?: string;
 }
 
 /////////////////////
@@ -179,6 +175,63 @@ export interface Sweetness {
   other: string[];
 }
 
+export type Balance = {
+  amount: number;
+  currency: string;
+};
+
+export type Utxo = {
+  address: string;
+  datum: string;
+  outputIndex: number;
+  txHash: string;
+  assets: {
+    [key: string]: number;
+  };
+};
+
+export type Funds = {
+  fundsInL1: Utxo[];
+  fundsInL2: Utxo[];
+  totalInL1: {
+    [key: string]: number;
+  };
+  totalInL2: {
+    [key: string]: number;
+  };
+};
+
+export type Wallet = {
+  name: string;
+  address: string;
+  balance: Balance;
+  icon: string;
+  transactions?: Transaction[];
+  seedPhrase?: string;
+  publicKey?: string;
+};
+
+export type Asset = {
+  name: string;
+  symbol: string;
+  decimals: number;
+  amount: number;
+  icon: string;
+  selected: boolean;
+  assetUnit: string;
+};
+
+export type UserData = {
+  id: string;
+  email: string;
+  name: string;
+  avatar: string;
+  type: "admin" | "merchant" | "client";
+  emailVerified: boolean;
+  wallet: Wallet | null;
+  createdAt: Timestamp;
+  lastUpdated: Timestamp;
+};
 // export type Sweetness = string[];
 
 export interface PricingLevel {

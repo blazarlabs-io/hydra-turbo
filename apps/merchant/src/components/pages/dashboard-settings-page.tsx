@@ -12,18 +12,83 @@ import {
   SelectValue,
 } from "@repo/ui/components/ui/select";
 import { useTheme } from "next-themes";
+import { Textarea } from "@repo/ui/components/ui/textarea";
+import { Button } from "@repo/ui/components/ui/button";
+import { useEffect, useState } from "react";
+import { db } from "~/src/lib/firebase/services/db";
+import { useWallet } from "~/src/context/wallet";
+import { useAuth } from "~/src/context/auth";
+import { Copy, LoaderCircle, Plus } from "lucide-react";
+import { getPrivateKey } from "~/src/utils/wallet";
+import { resolvePrivateKey } from "@meshsdk/core";
 
 export const DashboardSettingsPage = () => {
   const { setTheme, theme } = useTheme();
+  //seat burger click pipe inner lock logic inmate foot scene dream maid rapid actual false tribe melt hip solution gossip comic health blouse ozone
+  const [seedPhrase, setSeedPhrase] = useState<string>("");
+  const { user } = useAuth();
+  const { wallet, current } = useWallet();
+  const [creating, setCreating] = useState<boolean>(false);
+  const [privateKey, setPrivateKey] = useState<string | null>(null);
 
   const handleTheme = (t: string) => {
     setTheme(t);
   };
+
+  const handleTextAreChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setSeedPhrase(e.target.value);
+    console.log(e.target.value);
+  };
+
+  const handleSaveSeedPhrase = async () => {
+    // console.log(e.target.value);
+    const updateRes = await db.user.update(user?.uid, {
+      wallet: {
+        ...wallet,
+        seedPhrase: seedPhrase,
+      },
+    });
+
+    console.log("UPDATE USER", updateRes);
+  };
+
+  function splitToArray(input: string): string[] {
+    return input.trim().split(/\s+/);
+  }
+
+  const handleCreatePrivateKey = async () => {
+    const seedPhraseArr = splitToArray(seedPhrase);
+    const privateKey = resolvePrivateKey(seedPhraseArr);
+    console.log("PRIVATE KEY", privateKey);
+    setPrivateKey(() => privateKey);
+    const updateRes = await db.user.update(user?.uid, {
+      wallet: {
+        ...wallet,
+        privateKey: privateKey,
+      },
+    });
+    console.log("UPDATE USER", updateRes);
+    setCreating(() => false);
+  };
+
+  useEffect(() => {
+    if (current) {
+      console.log("CURRENT", current);
+      setSeedPhrase(current.seedPhrase);
+      if (current && current.privateKey && current.privateKey !== undefined) {
+        console.log("PRIVATE KEY", current.privateKey);
+        setPrivateKey(() => current.privateKey);
+      } else {
+        setPrivateKey(() => null);
+      }
+    }
+  }, [current]);
+
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="flex flex-col w-full gap-6">
       <PageHeader title="Settings" subtitle="Manage your app settings" />
       <Separator className="w-full" />
-      <div className="flex gap-1 items-center justify-between border rounded-md p-6">
+      <div className="flex items-center justify-between gap-1 p-6 border rounded-md border-input">
         <div>
           <h2 className="text-base font-bold">Theme</h2>
           <p className="text-sm">Change the theme of the app</p>
@@ -41,6 +106,66 @@ export const DashboardSettingsPage = () => {
               </SelectGroup>
             </SelectContent>
           </Select>
+        </div>
+      </div>
+      <div className="flex flex-col items-start justify-start w-full gap-4 p-6 border rounded-md border-input">
+        <div>
+          <h2 className="text-base font-bold">Seed Phrase</h2>
+          <p className="text-sm">Your wallet's seed phrase</p>
+        </div>
+        <div className="w-full">
+          <Textarea
+            value={seedPhrase}
+            className="w-full"
+            rows={1}
+            onChange={handleTextAreChange}
+          />
+        </div>
+        <div className="flex items-center justify-end w-full">
+          <Button onClick={handleSaveSeedPhrase} variant="outline">
+            Save
+          </Button>
+        </div>
+      </div>
+      <div className="flex flex-col items-start justify-start w-full gap-4 p-6 border rounded-md border-input">
+        <div>
+          <h2 className="text-base font-bold">Private Key</h2>
+          <p className="text-sm">Your wallet's private key</p>
+        </div>
+        <div className="w-full">
+          {!privateKey ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setCreating(() => true);
+                handleCreatePrivateKey();
+              }}
+            >
+              {!creating ? (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create
+                </>
+              ) : (
+                <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />
+              )}
+            </Button>
+          ) : (
+            <div className="flex items-center w-full gap-4">
+              <p className="truncate text-muted-foreground">{privateKey}</p>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => {
+                  navigator.clipboard.writeText(privateKey);
+                }}
+                className="min-w-10"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { Logo } from "@/components/assets/logo";
 import { useAuth } from "~/src/features/authentication/context/auth-provider";
 import { auth } from "@/lib/firebase/client";
+import "@meshsdk/react/styles.css";
 import {
   Avatar,
   AvatarFallback,
@@ -42,6 +43,9 @@ import { ChevronRight, History, Home, LogOut, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { WalletConnect } from "../widgets/wallet-connect";
+import { useWallet } from "@/context/wallet";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 // Menu items.
 const dataTemplate = {
@@ -78,6 +82,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   // * HOOKS
   const { user, singOutUserHandler } = useAuth();
   const router = useRouter();
+  const { terminalConnected } = useWallet();
   const pathname = usePathname();
 
   // * STATES
@@ -122,7 +127,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       <Sidebar collapsible="offcanvas">
         <SidebarHeader>
           <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center rounded-lg p-2 text-sidebar-primary-foreground">
+            <div className="flex items-center justify-center p-2 rounded-lg text-sidebar-primary-foreground">
               <Link href="/">
                 <data.brand.logo />
               </Link>
@@ -148,8 +153,8 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                         onClick={() => handleActiveItems(item)}
                       >
                         <Link href={item.url as string | ""}>
-                          <div className="flex h-8 items-center gap-2 text-sm">
-                            {item.icon && <item.icon className="h-4 w-4" />}
+                          <div className="flex items-center h-8 gap-2 text-sm">
+                            {item.icon && <item.icon className="w-4 h-4" />}
                             <span>{item.title}</span>
                           </div>
                           {item.title !== "Home" &&
@@ -190,33 +195,47 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <header className="flex h-16 w-full shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex w-full items-center gap-2 px-4">
+          <div className="flex items-center w-full gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
           </div>
-          <div className="flex h-full w-full items-center justify-end gap-4 pr-4">
+          <div className="flex items-center justify-end w-full h-full gap-4 pr-4">
             {user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointer border">
-                    <AvatarImage src={user?.photoURL as string} />
-                    <AvatarFallback className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#fab3d5] to-primary text-primary-foreground">
-                      {user.displayName?.charAt(0).toUpperCase() ||
-                        user.email?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-32">
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={singOutUserHandler}
-                    >
-                      <LogOut />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                <div
+                  style={{
+                    borderColor: terminalConnected ? "#ace650" : "#2e2d2d",
+                    color: terminalConnected ? "#ace650" : "#2e2d2d",
+                  }}
+                  className="flex items-center justify-center p-2 border rounded-lg border-sidebar-primary-foreground"
+                >
+                  <Icon icon="lucide:nfc" width="20" height="20" />
+                </div>
+
+                <WalletConnect />
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="border cursor-pointer">
+                      <AvatarImage src={user?.photoURL as string} />
+                      <AvatarFallback className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#fab3d5] to-primary text-primary-foreground">
+                        {user.displayName?.charAt(0).toUpperCase() ||
+                          user.email?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-32">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={handleSignOut}
+                      >
+                        <LogOut />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             )}
           </div>
         </header>
