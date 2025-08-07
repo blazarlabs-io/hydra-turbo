@@ -126,7 +126,7 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
       }
 
       const multiplier = 10 ** decimals;
-      const value = Number(_amount * multiplier);
+      const value = 5000; //Number(_amount * multiplier);
       const assetUnit = availableAssets.filter((a: any) => a.selected)[0]
         ?.assetUnit as string;
 

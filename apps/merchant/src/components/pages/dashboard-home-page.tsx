@@ -3,7 +3,7 @@
 import { Card, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
 import { PageHeader } from "../layouts/page-header";
 
-import { useAuth } from "@/context/auth";
+import { useAuth } from "@/features/authentication/context/auth-provider";
 import { Separator } from "@repo/ui/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { CashOut as CashOutIcon } from "../icons/CashOut";

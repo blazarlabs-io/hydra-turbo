@@ -20,7 +20,7 @@ import { useToast } from "~/src/hooks/use-toast";
 import { blockfrost } from "~/src/lib/blockfrost/client";
 import { cn } from "~/src/utils/shadcn";
 import Image from "next/image";
-import { resolvePrivateKey } from "@meshsdk/core";
+import { BrowserWallet, resolvePrivateKey, Wallet } from "@meshsdk/core";
 
 type TopupProps = {
   children: React.ReactNode;
@@ -62,12 +62,18 @@ export const Topup = ({ children }: TopupProps) => {
   }, []);
 
   const handleTopUp = useCallback(
-    async (_amount: any, _address: string, _wallet: any, selected: any) => {
+    async (
+      _amount: number,
+      _address: string,
+      _wallet: BrowserWallet,
+      selected: any,
+    ) => {
       console.log("\n\nXXXXXXXXXXXXXX");
       console.log("amount", _amount);
       console.log("address", _address);
       console.log("wallet", _wallet);
       console.log("selected", selected);
+      console.log("available assets", availableAssets);
       console.log("XXXXXXXXXXXXXX\n\n");
 
       const rawAmount = _amount;
@@ -77,9 +83,19 @@ export const Topup = ({ children }: TopupProps) => {
       const rawUsdmDecimals = availableAssets?.filter(
         (a: any) => a.name === "usdm",
       )[0]?.decimals;
+      const rawWbtcDecimals = availableAssets?.filter(
+        (a: any) => a.name === "wbtc",
+      )[0]?.decimals;
 
-      const rawDecimals =
-        selected.name === "ada" ? rawAdaDecimals : rawUsdmDecimals;
+      let rawDecimals: number = 0;
+
+      if (selected.name === "ada") {
+        rawDecimals = rawAdaDecimals as number;
+      } else if (selected.name === "wbtc") {
+        rawDecimals = rawWbtcDecimals as number;
+      } else {
+        rawDecimals = rawUsdmDecimals as number;
+      }
 
       if (
         rawAmount === undefined ||
@@ -90,8 +106,8 @@ export const Topup = ({ children }: TopupProps) => {
         throw new Error("Missing amount or decimals for BigInt conversion.");
       }
 
-      const amount = Number(rawAmount);
-      const decimals = Number(rawDecimals);
+      const amount = rawAmount;
+      const decimals = rawDecimals;
 
       if (isNaN(amount) || isNaN(decimals)) {
         throw new Error(
@@ -100,27 +116,32 @@ export const Topup = ({ children }: TopupProps) => {
       }
 
       const multiplier = 10 ** decimals;
-      const value = Number(amount * multiplier);
+      const value = amount * multiplier;
       const payload = {
         user_address: _address, //address, // The user's Cardano address from which the deposit will originate.
         public_key: current?.publicKey as string, // The public key associated to the user_address, in hex
-        amount: [[selected.assetUnit, value]],
+        amount: [[selected.assetUnit, value]], // The amount of funds to deposit, in Ada, WBTC and USDM (in that order).
         // fundsUtxoRef: null, // (Optional) The output reference of an existing user funds UTxO on the Cardano blockchain to consolidate.
       };
 
-      // const payload = {
-      //   user_address: "addr_test1qpxavcfdfnqzfwk5jtpsuf8xrhlhxwd87j2xrmlm9dh5ndfjet70k9rp3llv8v64em6pnqqd7sqjrpcsq83290u2tnxqzfjm24",
-      //   public_key: "956eab3114de96a0fcee7c1c2d04c72b0c0793ece39135ab2ab975a01d12c23f",
-      //   amount: [["c48cbb3d5e57ed56e276bc45f99ab39abe94e6cd7ac39fb402da47ad0014df105553444d", 10]],
-      // }
+      console.log("\n\nXXXXXXXXXXXXXX");
+      console.log("amount", amount);
+      console.log("typeof amount", typeof amount);
+      console.log("rawAmount", rawAmount);
+      console.log("decimals", decimals);
+      console.log("rawDecimals", rawDecimals);
+      console.log("multiplier", multiplier);
+      console.log("value", value);
+      console.log("typeof value", typeof value);
+      console.log("XXXXXXXXXXXXXX\n\n");
 
-      console.info("[RAW AMOUNT]", rawAmount);
-      console.info("[AMOUNT]", amount);
-      console.info("[RAW ADA DECIMALS]", rawAdaDecimals);
-      console.info("[RAW USDM DECIMALS]", rawUsdmDecimals);
-      console.info("[RAW MULTIPLIER]", multiplier);
-      console.info("[RAW DECIMALS]", rawDecimals);
-      console.info("[PAYLOAD]", payload, "\n\n");
+      // console.info("[RAW AMOUNT]", rawAmount);
+      // console.info("[AMOUNT]", amount);
+      // console.info("[RAW ADA DECIMALS]", rawAdaDecimals);
+      // console.info("[RAW USDM DECIMALS]", rawUsdmDecimals);
+      // console.info("[RAW MULTIPLIER]", multiplier);
+      // console.info("[RAW DECIMALS]", rawDecimals);
+      // console.info("[PAYLOAD]", payload, "\n\n");
 
       const topUpRes = await fetch(
         `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/deposit`,
@@ -133,16 +154,18 @@ export const Topup = ({ children }: TopupProps) => {
         },
       );
 
-      console.log("RES", topUpRes);
-
       if (topUpRes.ok) {
         try {
           const res = await topUpRes.json();
-          console.log(res);
           const cborHex = res.cborHex;
           const signedTx = await _wallet.signTx(cborHex);
           const txHash = await blockfrost.submitTx(signedTx);
           onConfirmation(txHash);
+
+          console.log("\n\nXXXXXXXXXXXXXX");
+          console.log("RES", res);
+          console.log("CBOR-HEX", cborHex);
+          console.log("XXXXXXXXXXXXXX\n\n");
         } catch (error) {
           console.log(error);
           toast({
@@ -317,7 +340,7 @@ export const Topup = ({ children }: TopupProps) => {
               className="min-w-[240px]"
               onClick={() =>
                 handleTopUp(
-                  amount,
+                  Number(amount),
                   window.localStorage.getItem("wallet") as string,
                   wallet,
                   availableAssets.find((a: any) => a.selected),

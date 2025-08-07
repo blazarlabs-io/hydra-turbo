@@ -20,7 +20,7 @@ import {
 } from "@meshsdk/react";
 import { browser } from "process";
 import { parse } from "path";
-import { useAuth } from "./auth";
+import { useAuth } from "@/features/authentication/context/auth-provider";
 import { collection, doc, onSnapshot, Timestamp } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { getAdaToUsd } from "../lib/coinwatch";
@@ -124,6 +124,16 @@ export const WalletProvider = ({
       selected: false,
       assetUnit:
         "77484e67c1ed6c96f55b89206cb5d6caae9a09a0bd473bba817929fe5553444d",
+    },
+    {
+      name: "wbtc",
+      symbol: "WBTC",
+      decimals: 8,
+      amount: 0,
+      icon: "/images/wbtc-token.png",
+      selected: false,
+      assetUnit:
+        "d2a8592ec9673ac18fea1044885f94518e954ab0cb2b6bb0a328d2af425443",
     },
   ]);
 

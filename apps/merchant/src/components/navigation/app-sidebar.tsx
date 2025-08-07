@@ -45,7 +45,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { WalletConnect } from "../widgets/wallet-connect";
 import { useWallet } from "@/context/wallet";
-import { Icon } from "@iconify/react/dist/iconify.js";
+import { Icon } from "@iconify/react";
 
 // Menu items.
 const dataTemplate = {
@@ -227,7 +227,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={handleSignOut}
+                        onClick={singOutUserHandler}
                       >
                         <LogOut />
                         Logout
