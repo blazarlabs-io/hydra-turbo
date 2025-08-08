@@ -12,45 +12,27 @@ import { useTheme } from "next-themes";
 import { cn } from "@repo/ui/lib/utils";
 import { useWallet } from "~/src/context/wallet";
 import { useEffect, useState } from "react";
+import { Wbtc } from "../icons/wbtc";
 
 export const Balance = () => {
   const { theme } = useTheme();
   const { accounts } = useWallet();
 
   const [usd, setUsd] = useState<number>(0);
+  const [usdFromAda, setUsdFromAda] = useState<number>(0);
+  const [usdFromWbtc, setUsdFromWbtc] = useState<number>(0);
   const [ada, setAda] = useState<number>(0);
   const [usdm, setUsdm] = useState<number>(0);
+  const [wbtc, setWbtc] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
 
   useEffect(() => {
     if (accounts && accounts.length > 0) {
-      setUsd(
-        Number(
-          accounts.filter((w) => w.balance.currency === "USD")[0]?.balance
-            ?.amount,
-        ) || 0,
-      );
-      setAda(
-        Number(
-          accounts.filter((w) => w.balance.currency === "ADA")[0]?.balance
-            ?.amount,
-        ) || 0,
-      );
-      setUsdm(
-        Number(
-          accounts.filter((w) => w.balance.currency === "USDM")[0]?.balance
-            ?.amount,
-        ) || 0,
-      );
       setTotal(
-        (Number(
+        Number(
           accounts.filter((w) => w.balance.currency === "USD")[0]?.balance
             ?.amount,
-        ) || 0) + // <--- moved the closing parenthesis here
-          (Number(
-            accounts.filter((w) => w.balance.currency === "USDM")[0]?.balance
-              ?.amount,
-          ) || 0),
+        ) || 0,
       );
     }
   }, [accounts]);
@@ -75,28 +57,28 @@ export const Balance = () => {
               </div>
             </div>
             <div className="flex flex-col items-end justify-start w-full gap-4">
-              <div className="flex flex-col items-end justify-start w-full gap-0">
-                <div className="flex items-center gap-2">
-                  <Ada className="w-5 h-5" />
-                  <p className="text-lg font-bold">{ada.toFixed(2)}</p>
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    ADA
-                  </span>
-                </div>
-                <p className="text-xs foreground">{`$${usd.toFixed(2)}`} USD</p>
-              </div>
-              <div className="flex flex-col items-end justify-start w-full gap-0">
-                <div className="flex items-center gap-2">
-                  <Usdm className="w-4 h-4" />
-                  <p className="text-lg font-bold">{usdm.toFixed(2)}</p>
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    USDM
-                  </span>
-                </div>
-                <p className="text-xs foreground">
-                  {`$${usdm.toFixed(2)}`} USD
-                </p>
-              </div>
+              {accounts &&
+                accounts.length > 0 &&
+                accounts.map((w) => (
+                  <div key={w.balance.currency}>
+                    {w.balance.currency !== "USD" && (
+                      <div className="flex flex-col items-end justify-start w-full gap-0">
+                        <div className="flex items-center gap-2">
+                          <Ada className="w-5 h-5" />
+                          <p className="text-lg font-bold">
+                            {w.balance.amount}
+                          </p>
+                          <span className="text-xs font-semibold text-muted-foreground min-w-[32px] text-end">
+                            {w.balance.currency}
+                          </span>
+                        </div>
+                        <p className="text-xs foreground">
+                          {`$${w.balance.asUsd}`} USD
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
             </div>
           </div>
         )}

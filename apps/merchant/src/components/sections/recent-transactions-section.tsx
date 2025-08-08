@@ -13,10 +13,22 @@ import {
 import { Button } from "@repo/ui/components/ui/button";
 import { Copy } from "lucide-react";
 import { useWallet } from "~/src/context/wallet";
+import { useEffect } from "react";
 
 export const RecentTransactionsSection = () => {
   const { transactions } = useTransactions();
-  const { current } = useWallet();
+  const { current, availableAssets } = useWallet();
+
+  useEffect(() => {
+    console.log("transactions", transactions);
+    transactions?.map((transaction) => {
+      if (transaction.assets) {
+        Object.keys(transaction.assets).map((assetKey) => {
+          console.log("availableAssets", availableAssets);
+        });
+      }
+    });
+  }, [transactions]);
 
   return (
     <div className="mt-6">

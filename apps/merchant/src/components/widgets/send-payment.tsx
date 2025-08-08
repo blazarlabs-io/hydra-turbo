@@ -126,7 +126,7 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
       }
 
       const multiplier = 10 ** decimals;
-      const value = 5000; //Number(_amount * multiplier);
+      const value = Number(_amount * multiplier);
       const assetUnit = availableAssets.filter((a: any) => a.selected)[0]
         ?.assetUnit as string;
 
@@ -178,6 +178,7 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
 
       const payResData = await res.json();
       console.log("PAYMENT SENT", payResData);
+      setOpenDialog(() => false);
     } catch (error) {
       console.log(error);
     }
@@ -288,19 +289,23 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
                 <SheetDescription>Amount to send</SheetDescription>
               </div>
               <input
-                value={amount}
+                value={amount || 0}
                 type="number"
-                onChange={(e) => setAmount(parseInt(e.target.value))}
+                onChange={(e) => {
+                  setAmount(() =>
+                    parseFloat(Number(e.target.value).toFixed(4)),
+                  );
+                }}
                 style={{
                   font: "inherit",
                   padding: 0,
                   border: "none",
                   outline: "none",
                   background: "transparent",
-                  // width: "48px",
                   fontSize: "3rem",
                   textAlign: "center",
                 }}
+                step={"any"}
               />
             </div>
           </div>
