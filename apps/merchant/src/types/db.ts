@@ -8,6 +8,7 @@ export interface Transaction {
   originWallet: Wallet;
   destinationWallet: Wallet;
   symbol?: string;
+  assets?: { [key: string]: number };
 }
 
 /////////////////////
@@ -178,6 +179,7 @@ export interface Sweetness {
 export type Balance = {
   amount: number;
   currency: string;
+  asUsd: number | string;
 };
 
 export type Utxo = {

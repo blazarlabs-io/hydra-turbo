@@ -17,7 +17,7 @@ import { Button } from "@repo/ui/components/ui/button";
 import { useEffect, useState } from "react";
 import { db } from "~/src/lib/firebase/services/db";
 import { useWallet } from "~/src/context/wallet";
-import { useAuth } from "~/src/context/auth";
+import { useAuth } from "@/features/authentication/context/auth-provider";
 import { Copy, LoaderCircle, Plus } from "lucide-react";
 import { getPrivateKey } from "~/src/utils/wallet";
 import { resolvePrivateKey } from "@meshsdk/core";

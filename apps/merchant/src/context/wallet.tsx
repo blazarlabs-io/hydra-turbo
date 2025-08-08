@@ -23,7 +23,7 @@ import { parse } from "path";
 import { useAuth } from "@/features/authentication/context/auth-provider";
 import { collection, doc, onSnapshot, Timestamp } from "firebase/firestore";
 import { User } from "firebase/auth";
-import { getAdaToUsd } from "../lib/coinwatch";
+import { getAdaToUsd, getWbtcToUsd } from "../lib/coinwatch";
 import { blockfrost } from "../lib/blockfrost/client";
 import {
   TRIGGERS,
@@ -196,9 +196,12 @@ export const WalletProvider = ({
       setIsConfirming(() => false);
 
       const tmp = await balanceRes.json();
-      const { adaBalance, usdmBalance } = await updateSetAccounts(tmp);
+      const { adaBalance, usdmBalance, wbtcBalance } =
+        await updateSetAccounts(tmp);
 
-      setMaxToSpend(() => (adaBalance || 0) + (usdmBalance || 0));
+      setMaxToSpend(
+        () => (adaBalance || 0) + (usdmBalance || 0 + wbtcBalance || 0),
+      );
     });
   }, []);
 
@@ -222,28 +225,61 @@ export const WalletProvider = ({
           tmp.totalInL2[
             availableAssets.find((a) => a.name === "usdm")?.assetUnit as string
           ];
-
-        /*
-        console.info("\n\n\n=========================================");
-        console.info("ADA BALANCE L1", adaBalanceL1);
-        console.info("ADA BALANCE L2", adaBalanceL2);
-        console.info("USDM BALANCE L1", usdmBalanceL1);
-        console.info("USDM BALANCE L2", usdmBalanceL2);
-        console.info("=========================================\n\n\n");
-        */
+        const wbtcBalanceL1 =
+          tmp.totalInL1[
+            availableAssets.find((a) => a.name === "wbtc")?.assetUnit as string
+          ];
+        const wbtcBalanceL2 =
+          tmp.totalInL2[
+            availableAssets.find((a) => a.name === "wbtc")?.assetUnit as string
+          ];
 
         const adaBalance = (adaBalanceL1 || 0) + (adaBalanceL2 || 0);
         const usdmBalance = (usdmBalanceL1 || 0) + (usdmBalanceL2 || 0);
+        const wbtcBalance = (wbtcBalanceL1 || 0) + (wbtcBalanceL2 || 0);
+
+        const fixedWbtcBalance = parseFloat(
+          (parseFloat(wbtcBalance) / 100000000).toFixed(8),
+        );
 
         try {
-          const converted = await getAdaToUsd();
+          const adaRate = await getAdaToUsd();
+          const wbtcRate = await getWbtcToUsd();
+          const usdFromAda = (adaBalance / 1000000) * adaRate;
+          const usdFromWbtc = fixedWbtcBalance * Number(wbtcRate.toFixed(2)); //Number(fixedWbtcBalance / 100000000) * Number(wbtcRate.toFixed(2));
+
+          const formattedUsdFromWbtc = usdFromWbtc.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 4,
+            useGrouping: false,
+          });
+
+          console.info("\n\n\n=========================================");
+          console.info("ADA BALANCE L1", adaBalanceL1);
+          console.info("ADA BALANCE L2", adaBalanceL2);
+          console.info("USDM BALANCE L1", usdmBalanceL1);
+          console.info("USDM BALANCE L2", usdmBalanceL2);
+          console.info("WBTC BALANCE L1", wbtcBalanceL1);
+          console.info("WBTC BALANCE L2", wbtcBalanceL2);
+          console.info("ADA TOTAL BALANCE", adaBalance);
+          console.info("USDM TOTAL BALANCE", usdmBalance);
+          console.info("WBTC TOTAL BALANCE", wbtcBalance);
+          console.info("FIXED WBTC BALANCE", fixedWbtcBalance);
+          console.log("ADA RATE", adaRate);
+          console.log("WBTC RATE", Number(wbtcRate.toFixed(2)));
+          console.log("USD FROM ADA", usdFromAda);
+          console.log("USD FROM WBTC", usdFromWbtc);
+          console.log("USD FROM WBTC FORMATTED", formattedUsdFromWbtc);
+          console.info("=========================================\n\n\n");
+
           const newAccounts: Wallet[] = [
             {
               name: (wallet as any)._walletName,
               address: address,
               balance: {
-                amount: Number((Number(adaBalance) / 1000000).toFixed(2)),
+                amount: (Number(adaBalance) / 1000000).toFixed(2),
                 currency: "ADA",
+                asUsd: usdFromAda.toFixed(2),
               },
               icon: browserWallets?.find(
                 (w: any) => w.name === (wallet as any)._walletName,
@@ -253,10 +289,9 @@ export const WalletProvider = ({
               name: (wallet as any)._walletName,
               address: address,
               balance: {
-                amount: Number(
-                  ((Number(adaBalance) / 1000000) * converted).toFixed(2),
-                ),
+                amount: usdFromAda + usdFromWbtc + usdmBalance,
                 currency: "USD",
+                asUsd: usdFromAda + usdFromWbtc + usdmBalance,
               },
               icon: browserWallets?.find(
                 (w: any) => w.name === (wallet as any)._walletName,
@@ -266,8 +301,21 @@ export const WalletProvider = ({
               name: (wallet as any)._walletName,
               address: address,
               balance: {
-                amount: Number(Number(usdmBalance).toFixed(2)),
+                amount: Number(usdmBalance).toFixed(2),
                 currency: "USDM",
+                asUsd: Number(Number(usdmBalance).toFixed(2)),
+              },
+              icon: browserWallets?.find(
+                (w: any) => w.name === (wallet as any)._walletName,
+              )?.icon,
+            },
+            {
+              name: (wallet as any)._walletName,
+              address: address,
+              balance: {
+                amount: fixedWbtcBalance,
+                currency: "WBTC",
+                asUsd: formattedUsdFromWbtc,
               },
               icon: browserWallets?.find(
                 (w: any) => w.name === (wallet as any)._walletName,
@@ -275,7 +323,7 @@ export const WalletProvider = ({
             },
           ];
           setAccounts(() => newAccounts);
-          return { adaBalance, usdmBalance };
+          return { adaBalance, usdmBalance, wbtcBalance };
         } catch (error) {
           console.log(error);
           return null;
@@ -401,6 +449,7 @@ export const WalletProvider = ({
                 balance: {
                   amount: (lovelace as any) || 0,
                   currency: "ADA",
+                  asUsd: Number(lovelace) * (await getAdaToUsd()),
                 },
                 icon:
                   (browserWallets?.find(
@@ -417,6 +466,7 @@ export const WalletProvider = ({
                 balance: {
                   amount: 0,
                   currency: "",
+                  asUsd: 0,
                 },
                 icon: "",
                 transactions: [],
@@ -508,7 +558,8 @@ export const WalletProvider = ({
 
           setLoading(() => false);
           const tmp = await balanceRes.json();
-          const { adaBalance, usdmBalance } = await updateSetAccounts(tmp);
+          const { adaBalance, usdmBalance, wbtcBalance } =
+            await updateSetAccounts(tmp);
         })
         .catch((err) => {
           console.log(err);
@@ -545,11 +596,12 @@ export const WalletProvider = ({
               },
             );
             const tmp = await balanceRes.json();
-            const { adaBalance, usdmBalance } = await updateSetAccounts(tmp);
+            const { adaBalance, usdmBalance, wbtcBalance } =
+              await updateSetAccounts(tmp);
             await db.trigger.setCompletePayTrigger(user?.uid);
             console.log(
               "\n\n[BALANCE UPDATED]",
-              adaBalance + usdmBalance,
+              adaBalance + usdmBalance + wbtcBalance,
               "\n\n",
             );
           }

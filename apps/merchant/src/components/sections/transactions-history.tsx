@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransactions } from "~/src/context/transactions";
+import { Button } from "@repo/ui/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,11 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/ui/table";
-import { Button } from "@repo/ui/components/ui/button";
 import { Copy } from "lucide-react";
+import { useEffect } from "react";
+import { useTransactions } from "~/src/context/transactions";
 
 export const TransactionsHistory = () => {
   const { transactions } = useTransactions();
+
+  useEffect(() => {
+    console.log("XXXXXXXXXtransactions", transactions);
+  }, [transactions]);
 
   return (
     <div className="mt-6">
