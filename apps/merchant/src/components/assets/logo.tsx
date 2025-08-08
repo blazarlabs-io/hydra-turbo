@@ -10,20 +10,16 @@ export interface LogoProps {
 export const Logo = ({ className }: LogoProps) => {
   const { theme } = useTheme();
   return (
-    <>
-      {theme && (
-        <Image
-          src={
-            theme === "dark"
-              ? "/images/hydrapay-logo-white.png"
-              : "/images/hydrapay-logo.png"
-          }
-          alt="Logo"
-          width={116}
-          height={48}
-          className={className}
-        />
-      )}
-    </>
+    <Image
+      src={
+        theme === "dark"
+          ? "/images/hydrapay-logo-white.png"
+          : "/images/hydrapay-logo.png"
+      }
+      alt="Logo"
+      width={116}
+      height={48}
+      className={className}
+    />
   );
 };

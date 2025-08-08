@@ -93,7 +93,7 @@ export const ReceivePayment = ({ children }: ReceivePaymentProps) => {
 
   const handleValueChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(Number(e.target.value));
+      setValue(parseFloat(e.target.value));
     },
     [],
   );
@@ -185,10 +185,12 @@ export const ReceivePayment = ({ children }: ReceivePaymentProps) => {
                   border: "none",
                   outline: "none",
                   background: "transparent",
-                  // width: "48px",
                   fontSize: "3rem",
                   textAlign: "center",
                 }}
+                step="any"
+                min={"0.00000001"}
+                type="number"
               />
             </div>
             <div>
