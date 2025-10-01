@@ -6,10 +6,11 @@ import {
   NEXT_PUBLIC_SENDGRID_API_KEY,
   NEXT_PUBLIC_TRACECORK_EMAIL,
 } from "@/data/env-constants";
-import { adminAuth, initAdmin } from "@/lib/firebase/admin";
+import { getAdminAuth, initAdmin } from "@/lib/firebase/admin";
 
 export async function POST(request: Request) {
   await initAdmin();
+  const auth = getAdminAuth();
 
   const data = await request.json();
 
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
     handleCodeInApp: true,
   };
 
-  const url = await adminAuth.generateEmailVerificationLink(
+  const url = await auth.generateEmailVerificationLink(
     data.email as string,
     actionCodeSettings,
   );

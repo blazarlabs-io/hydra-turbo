@@ -41,9 +41,43 @@ export async function initAdmin() {
     privateKey: process.env.NEXT_PUBLIC_FIREBASE_PRIVATE_KEY as string,
   };
 
+  // Check if all required environment variables are present
+  if (
+    !params.projectId ||
+    !params.clientEmail ||
+    !params.storageBucket ||
+    !params.privateKey
+  ) {
+    throw new Error("Missing required Firebase environment variables");
+  }
+
   return createFirebaseAdminApp(params);
 }
 
-initAdmin();
-export const adminAuth = admin.auth();
-export const adminFirestore = admin.firestore();
+// Lazy initialization - only initialize when needed
+let _adminAuth: admin.auth.Auth | null = null;
+let _adminFirestore: admin.firestore.Firestore | null = null;
+
+export function getAdminAuth() {
+  if (!_adminAuth) {
+    if (admin.apps.length === 0) {
+      throw new Error(
+        "Firebase admin not initialized. Call initAdmin() first.",
+      );
+    }
+    _adminAuth = admin.auth();
+  }
+  return _adminAuth;
+}
+
+export function getAdminFirestore() {
+  if (!_adminFirestore) {
+    if (admin.apps.length === 0) {
+      throw new Error(
+        "Firebase admin not initialized. Call initAdmin() first.",
+      );
+    }
+    _adminFirestore = admin.firestore();
+  }
+  return _adminFirestore;
+}

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { adminAuth, initAdmin } from "@/lib/firebase/admin";
+import { getAdminAuth, initAdmin } from "@/lib/firebase/admin";
 
 export async function POST(request: Request) {
   try {
     await initAdmin();
+    const auth = getAdminAuth();
     const authHeader = request.headers.get("Authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
 
     const token = authHeader.split(" ")[1]; // Extract token
 
-    const decodedData = await adminAuth.verifyIdToken(token || "");
+    const decodedData = await auth.verifyIdToken(token || "");
 
     return NextResponse.json({ token, decodedData }); // You can verify it here
   } catch (error) {

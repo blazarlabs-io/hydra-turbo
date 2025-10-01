@@ -1,4 +1,14 @@
 // Simple browser detection test utility
+
+// Extend Navigator interface for Web Bluetooth
+declare global {
+  interface Navigator {
+    bluetooth?: {
+      requestDevice(options: any): Promise<any>;
+    };
+  }
+}
+
 export function testBrowserDetection() {
   console.log("=== Browser Detection Test ===");
   console.log("User Agent:", navigator.userAgent);

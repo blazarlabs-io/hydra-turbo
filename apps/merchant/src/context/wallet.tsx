@@ -584,26 +584,46 @@ export const WalletProvider = ({
           const data = doc.data();
           triggers.push(data);
           if (data.status === "pending") {
-            const balanceRes = await fetch(
-              `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/query-funds?address=${
-                (localStorage.getItem("wallet") as string) || address
-              }`,
-              {
+            const apiUrl = process.env.NEXT_PUBLIC_HYDRA_API_URL;
+            if (!apiUrl) {
+              console.error(
+                "NEXT_PUBLIC_HYDRA_API_URL environment variable is not set",
+              );
+              return;
+            }
+
+            const walletAddress =
+              (localStorage.getItem("wallet") as string) || address;
+            const fullUrl = `${apiUrl}/query-funds?address=${walletAddress}`;
+
+            console.log("Fetching balance from:", fullUrl);
+
+            try {
+              const balanceRes = await fetch(fullUrl, {
                 method: "GET",
                 headers: {
                   "Content-Type": "application/json",
                 },
-              },
-            );
-            const tmp = await balanceRes.json();
-            const { adaBalance, usdmBalance, wbtcBalance } =
-              await updateSetAccounts(tmp);
-            await db.trigger.setCompletePayTrigger(user?.uid);
-            console.log(
-              "\n\n[BALANCE UPDATED]",
-              adaBalance + usdmBalance + wbtcBalance,
-              "\n\n",
-            );
+              });
+
+              if (!balanceRes.ok) {
+                throw new Error(`HTTP error! status: ${balanceRes.status}`);
+              }
+
+              const tmp = await balanceRes.json();
+              const { adaBalance, usdmBalance, wbtcBalance } =
+                await updateSetAccounts(tmp);
+              await db.trigger.setCompletePayTrigger(user?.uid);
+              console.log(
+                "\n\n[BALANCE UPDATED]",
+                adaBalance + usdmBalance + wbtcBalance,
+                "\n\n",
+              );
+            } catch (error) {
+              console.error("Failed to fetch balance:", error);
+              console.error("API URL:", fullUrl);
+              console.error("Wallet address:", walletAddress);
+            }
           }
         });
       });

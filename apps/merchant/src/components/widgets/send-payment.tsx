@@ -35,7 +35,7 @@ import {
   MapAssetsT,
   to,
   valueTuplesToAssets,
-} from "~/src/utils/wallet";
+} from "~/src/utils/wallet-client";
 import { db } from "~/src/lib/firebase/services/db";
 import { cn } from "~/src/utils/shadcn";
 

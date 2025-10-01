@@ -22,7 +22,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useWallet } from "~/src/context/wallet";
 import { cn } from "~/src/utils/shadcn";
 import * as c from "@dcspark/cardano-multiplatform-lib-browser";
-import { getPrivateKey } from "~/src/utils/wallet";
+import { getPrivateKey } from "~/src/utils/wallet-client";
 import { blockfrost } from "~/src/lib/blockfrost/client";
 
 type CashoutProps = {
