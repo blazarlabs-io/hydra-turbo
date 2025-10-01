@@ -2,4 +2,4 @@
 
 import { io, Socket } from "socket.io-client";
 
-export const socket: Socket = io("raspberrypi.local:3000");
+export const socket: Socket = io("blazar.local:3000");
