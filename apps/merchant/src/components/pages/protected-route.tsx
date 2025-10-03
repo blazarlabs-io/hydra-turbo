@@ -9,9 +9,11 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("[PROTECTED_ROUTE] Auth state:", { loading, user: !!user });
     // Only redirect if auth is done loading and there's no user
     if (!loading && !user) {
-      router.replace("/");
+      console.log("[PROTECTED_ROUTE] No user found, redirecting to /login");
+      router.replace("/login");
     }
   }, [loading, user, router]);
 
