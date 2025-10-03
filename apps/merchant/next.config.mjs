@@ -116,14 +116,14 @@ const nextConfig = {
     // Read allowlist dynamically to ensure it's fresh in development
     const allow = readAllowlist();
     const CSP = cspFromAllowlist(allow);
-    
+
     // Create headers with dynamic CSP
-    const dynamicHeaders = securityHeaders.map(header => 
-      header.key === "Content-Security-Policy" 
+    const dynamicHeaders = securityHeaders.map((header) =>
+      header.key === "Content-Security-Policy"
         ? { ...header, value: CSP }
-        : header
+        : header,
     );
-    
+
     return [
       {
         source: "/(.*)",

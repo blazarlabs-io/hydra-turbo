@@ -75,5 +75,7 @@ export const AuthProvider = ({
 
   const value = { user, loading, setUserHandler, singOutUserHandler };
 
-  return <AuthContext.Provider value={value}>{children as any}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>{children as any}</AuthContext.Provider>
+  );
 };
