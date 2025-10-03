@@ -111,7 +111,7 @@ export const Cashout = ({ children }: CashoutProps) => {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/withdraw`,
+        `/api/hydra/withdraw`,
         {
           method: "POST",
           headers: {

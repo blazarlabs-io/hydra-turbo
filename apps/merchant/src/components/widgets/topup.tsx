@@ -144,7 +144,7 @@ export const Topup = ({ children }: TopupProps) => {
       // console.info("[PAYLOAD]", payload, "\n\n");
 
       const topUpRes = await fetch(
-        `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/deposit`,
+        `/api/hydra/deposit`,
         {
           method: "POST",
           headers: {

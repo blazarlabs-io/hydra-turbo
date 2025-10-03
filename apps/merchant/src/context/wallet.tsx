@@ -182,7 +182,7 @@ export const WalletProvider = ({
       );
 
       const balanceRes = await fetch(
-        `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/query-funds?address=${
+        `/api/hydra/query-funds?address=${
           (localStorage.getItem("wallet") as string) || address
         }`,
         {
@@ -404,7 +404,7 @@ export const WalletProvider = ({
             // console.log("user exists");
 
             const balanceRes = await fetch(
-              `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/query-funds?address=${
+              `/api/hydra/query-funds?address=${
                 (localStorage.getItem("wallet") as string) || address
               }`,
               {
@@ -547,7 +547,7 @@ export const WalletProvider = ({
         .then(async (res) => {
           const data = await res.json();
           const balanceRes = await fetch(
-            `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/query-funds?address=${address}`,
+            `/api/hydra/query-funds?address=${address}`,
             {
               method: "GET",
               headers: {
@@ -584,17 +584,11 @@ export const WalletProvider = ({
           const data = doc.data();
           triggers.push(data);
           if (data.status === "pending") {
-            const apiUrl = process.env.NEXT_PUBLIC_HYDRA_API_URL;
-            if (!apiUrl) {
-              console.error(
-                "NEXT_PUBLIC_HYDRA_API_URL environment variable is not set",
-              );
-              return;
-            }
+            // API URL is now handled server-side
 
             const walletAddress =
               (localStorage.getItem("wallet") as string) || address;
-            const fullUrl = `${apiUrl}/query-funds?address=${walletAddress}`;
+            const fullUrl = `/api/hydra/query-funds?address=${walletAddress}`;
 
             console.log("Fetching balance from:", fullUrl);
 

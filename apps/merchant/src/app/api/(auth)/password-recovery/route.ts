@@ -1,20 +1,17 @@
+import "server-only";
 import * as sgMail from "@sendgrid/mail";
 import { emailTemplates } from "@/utils/";
 import { ActionCodeSettings } from "firebase-admin/auth";
-import {
-  NEXT_PUBLIC_APP_URL,
-  NEXT_PUBLIC_SENDGRID_API_KEY,
-  NEXT_PUBLIC_TRACECORK_EMAIL,
-} from "@/data/env-constants";
+import { env } from "@/lib/env";
 import { getAdminAuth, initAdmin } from "@/lib/firebase/admin";
 
 export async function POST(request: Request) {
   await initAdmin();
   const auth = getAdminAuth();
 
-  sgMail.setApiKey(NEXT_PUBLIC_SENDGRID_API_KEY);
+  sgMail.setApiKey(env.SENDGRID_API_KEY);
 
-  const baseUrl = NEXT_PUBLIC_APP_URL + "/password-reset";
+  const baseUrl = env.APP_URL + "/password-reset";
 
   const actionCodeSettings: ActionCodeSettings = {
     url: baseUrl,
@@ -33,7 +30,7 @@ export async function POST(request: Request) {
 
   const msg: sgMail.MailDataRequired = {
     to: data.email,
-    from: NEXT_PUBLIC_TRACECORK_EMAIL, // Use the email address or domain you verified above
+    from: env.TRACECORK_EMAIL, // Use the email address or domain you verified above
     templateId: emailTemplates["password-recovery"],
     personalizations: [
       {

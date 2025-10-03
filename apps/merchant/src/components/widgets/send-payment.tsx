@@ -76,7 +76,7 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
     try {
       // * 1. We need to get the user's funds from the L2 wallet
       const fundsRes = await fetch(
-        `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/query-funds?address=${
+        `/api/hydra/query-funds?address=${
           (localStorage.getItem("wallet") as string) || current?.address
         }`,
         {
@@ -161,7 +161,7 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
 
       // * 3. We send the payment to the merchant viia tx-pipe API
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/pay-merchant`,
+        `/api/hydra/pay-merchant`,
         {
           method: "POST",
           headers: {

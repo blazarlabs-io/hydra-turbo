@@ -6,6 +6,26 @@ import { TransactionsProvider } from "./transactions";
 import { CmsProvider } from "./cms";
 import { WalletProvider } from "./wallet";
 import { MeshProvider } from "@meshsdk/react";
+import { usePublicConfig } from "../hooks/use-public-config";
+
+function GoogleMapsProvider({ children }: { children: React.ReactNode }) {
+  const { config, loading, error } = usePublicConfig();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error || !config) {
+    console.error('Failed to load Google Maps config:', error);
+    return <>{children}</>; // Render without Google Maps
+  }
+
+  return (
+    <APIProvider apiKey={config.googleMaps?.apiKey || ""}>
+      {children}
+    </APIProvider>
+  );
+}
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -15,11 +35,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           <MeshProvider>
             <WalletProvider>
               <TransactionsProvider>
-                <APIProvider
-                  apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
-                >
+                <GoogleMapsProvider>
                   {children}
-                </APIProvider>
+                </GoogleMapsProvider>
               </TransactionsProvider>
             </WalletProvider>
           </MeshProvider>

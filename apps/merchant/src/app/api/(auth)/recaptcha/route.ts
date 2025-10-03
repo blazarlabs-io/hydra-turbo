@@ -1,4 +1,6 @@
+import "server-only";
 import axios from "axios";
+import { env } from "@/lib/env";
 
 export async function POST(req: Request) {
   if (req.method !== "POST") {
@@ -10,8 +12,7 @@ export async function POST(req: Request) {
 
   const data = await req.json();
   const { token } = data;
-  const secretKey: string = process.env
-    .NEXT_PUBLIC_CAPTCHA_SECRET_KEY as string;
+  const secretKey: string = env.CAPTCHA_SECRET_KEY;
 
   if (!token) {
     return new Response(JSON.stringify({ message: "Token not found" }), {

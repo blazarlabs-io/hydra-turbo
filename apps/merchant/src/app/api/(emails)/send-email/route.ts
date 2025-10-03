@@ -1,17 +1,15 @@
+import "server-only";
 import * as sgMail from "@sendgrid/mail";
-import {
-  NEXT_PUBLIC_SENDGRID_API_KEY,
-  NEXT_PUBLIC_TRACECORK_EMAIL,
-} from "@/data/env-constants";
+import { env } from "@/lib/env";
 
 export async function POST(request: Request) {
   const data = await request.json();
 
-  sgMail.setApiKey(NEXT_PUBLIC_SENDGRID_API_KEY as string);
+  sgMail.setApiKey(env.SENDGRID_API_KEY);
 
   let msg: sgMail.MailDataRequired = {
     to: data.to,
-    from: NEXT_PUBLIC_TRACECORK_EMAIL as string, // Use the email address or domain you verified above
+    from: env.TRACECORK_EMAIL, // Use the email address or domain you verified above
     templateId: data.templateId,
   };
 

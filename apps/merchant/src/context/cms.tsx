@@ -7,7 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 // LIBS
 import { createContext, useContext, useEffect, useState } from "react";
 import { PricingLevel, Sweetness } from "../types/db";
-import { client } from "../lib/sanity/client";
+// import { client } from "../lib/sanity/client"; // Now using API route
 
 export interface CmsContextInterface {
   pricing: PricingLevel[];
@@ -53,7 +53,16 @@ export const CmsProvider = ({
   const [sweetness, setSweetness] = useState<Sweetness>({} as Sweetness);
 
   const getSystemVariables = async () => {
-    const data = await client.fetch('*[_type == "systemVariables"]');
+    const response = await fetch('/api/sanity', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: '*[_type == "systemVariables"]'
+      }),
+    });
+    const data = await response.json();
     return data;
   };
 

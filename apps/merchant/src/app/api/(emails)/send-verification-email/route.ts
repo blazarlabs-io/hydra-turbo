@@ -1,11 +1,8 @@
+import "server-only";
 import * as sgMail from "@sendgrid/mail";
 import { ActionCodeSettings } from "firebase-admin/auth";
 import { emailTemplates } from "@/data/email-templates";
-import {
-  NEXT_PUBLIC_APP_URL,
-  NEXT_PUBLIC_SENDGRID_API_KEY,
-  NEXT_PUBLIC_TRACECORK_EMAIL,
-} from "@/data/env-constants";
+import { env } from "@/lib/env";
 import { getAdminAuth, initAdmin } from "@/lib/firebase/admin";
 
 export async function POST(request: Request) {
@@ -14,9 +11,9 @@ export async function POST(request: Request) {
 
   const data = await request.json();
 
-  sgMail.setApiKey(NEXT_PUBLIC_SENDGRID_API_KEY as string);
+  sgMail.setApiKey(env.SENDGRID_API_KEY);
 
-  const baseUrl = NEXT_PUBLIC_APP_URL + "/confirm-email";
+  const baseUrl = env.APP_URL + "/confirm-email";
 
   const actionCodeSettings: ActionCodeSettings = {
     url: baseUrl,
@@ -33,7 +30,7 @@ export async function POST(request: Request) {
 
   const msg: sgMail.MailDataRequired = {
     to: data.email,
-    from: NEXT_PUBLIC_TRACECORK_EMAIL, // Use the email address or domain you verified above
+    from: env.TRACECORK_EMAIL, // Use the email address or domain you verified above
     templateId: emailTemplates["confirmation-email"],
     personalizations: [
       {
