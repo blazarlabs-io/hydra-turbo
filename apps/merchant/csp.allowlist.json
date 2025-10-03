@@ -15,6 +15,9 @@
     "https://*.sanity.io",
     "https://api.sendgrid.net",
     "https://www.google.com",
+    "https://api.iconify.design",
+    "https://api.unisvg.com",
+    "https://api.simplesvg.com",
     "http://localhost:*",
     "http://127.0.0.1:*"
   ],
@@ -23,22 +26,17 @@
     "https://maps.googleapis.com",
     "https://maps.gstatic.com",
     "https://*.googleapis.com",
-    "data:"
+    "https://lh3.googleusercontent.com",
+    "https://*.googleusercontent.com",
+    "data:",
+    "blob:"
   ],
   "script": [
     "https://maps.googleapis.com",
     "https://www.google.com",
     "https://www.gstatic.com"
   ],
-  "style": [
-    "https://fonts.googleapis.com",
-    "'unsafe-inline'"
-  ],
-  "font": [
-    "https://fonts.gstatic.com",
-    "data:"
-  ],
-  "frame": [
-    "https://www.google.com"
-  ]
+  "style": ["https://fonts.googleapis.com", "'unsafe-inline'"],
+  "font": ["https://fonts.gstatic.com", "data:"],
+  "frame": ["https://www.google.com"]
 }
