@@ -70,12 +70,9 @@ function cspFromAllowlist(allow) {
     .join("; ");
 }
 
-const allow = readAllowlist();
-const CSP = cspFromAllowlist(allow);
-
 const securityHeaders = [
-  // Core hardening
-  { key: "Content-Security-Policy", value: CSP },
+  // Core hardening - CSP will be generated dynamically in headers()
+  { key: "Content-Security-Policy", value: "" }, // Placeholder, will be replaced
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -116,10 +113,21 @@ const nextConfig = {
     // wasm: true, // This option is not valid in Next.js 15
   },
   async headers() {
+    // Read allowlist dynamically to ensure it's fresh in development
+    const allow = readAllowlist();
+    const CSP = cspFromAllowlist(allow);
+    
+    // Create headers with dynamic CSP
+    const dynamicHeaders = securityHeaders.map(header => 
+      header.key === "Content-Security-Policy" 
+        ? { ...header, value: CSP }
+        : header
+    );
+    
     return [
       {
         source: "/(.*)",
-        headers: securityHeaders,
+        headers: dynamicHeaders,
       },
     ];
   },
