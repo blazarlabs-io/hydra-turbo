@@ -206,7 +206,7 @@ describe("verify-id-token API route", () => {
     mockInitAdmin.mockRejectedValue(
       new Error("Firebase initialization failed"),
     );
-    
+
     mockToPublicError.mockReturnValue({
       status: 500,
       message: "Internal server error",
