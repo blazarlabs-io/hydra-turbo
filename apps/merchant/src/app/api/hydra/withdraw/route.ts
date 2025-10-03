@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     console.error("Error withdrawing funds:", error);
     return NextResponse.json(
       { error: "Failed to withdraw funds" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

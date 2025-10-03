@@ -1,6 +1,6 @@
-import 'server-only';
-import { NextResponse } from 'next/server';
-import { env, firebaseConfig, captchaConfig } from '@/lib/env';
+import "server-only";
+import { NextResponse } from "next/server";
+import { env, firebaseConfig, captchaConfig } from "@/lib/env";
 
 export async function GET() {
   // Return only harmless values that are truly needed by the client

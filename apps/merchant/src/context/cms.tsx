@@ -53,13 +53,13 @@ export const CmsProvider = ({
   const [sweetness, setSweetness] = useState<Sweetness>({} as Sweetness);
 
   const getSystemVariables = async () => {
-    const response = await fetch('/api/sanity', {
-      method: 'POST',
+    const response = await fetch("/api/sanity", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query: '*[_type == "systemVariables"]'
+        query: '*[_type == "systemVariables"]',
       }),
     });
     const data = await response.json();

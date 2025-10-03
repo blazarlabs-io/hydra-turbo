@@ -204,7 +204,7 @@ $ grep -r "NEXT_PUBLIC_" apps/merchant/.next/static/
 
 1. Firebase client configuration is designed to be public and safe to expose
 2. Blockfrost project keys are API identifiers, not sensitive credentials
-3. The Firebase SDK requires these values at build time with NEXT_PUBLIC_ prefix
+3. The Firebase SDK requires these values at build time with NEXT*PUBLIC* prefix
 
 **No other environment variables or secrets were found in the client bundle.**
 

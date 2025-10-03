@@ -150,9 +150,7 @@ export const SignUpForm = () => {
             />
             <div className="flex w-full items-center justify-center">
               <ReCAPTCHA
-                sitekey={
-                  config?.captcha?.siteKey || ""
-                }
+                sitekey={config?.captcha?.siteKey || ""}
                 ref={recaptchaRef}
                 onChange={handleChange}
                 onExpired={handleExpired}

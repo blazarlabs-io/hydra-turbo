@@ -51,7 +51,7 @@ export async function GET() {
     console.error("Error fetching coin prices:", error);
     return NextResponse.json(
       { error: "Failed to fetch coin prices" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

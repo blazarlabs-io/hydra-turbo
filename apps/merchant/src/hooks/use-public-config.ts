@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface PublicConfig {
   firebase: {
@@ -39,7 +39,7 @@ export function usePublicConfig() {
 
     const fetchConfig = async () => {
       try {
-        const response = await fetch('/api/config');
+        const response = await fetch("/api/config");
         if (!response.ok) {
           throw new Error(`Failed to fetch config: ${response.statusText}`);
         }
@@ -48,7 +48,7 @@ export function usePublicConfig() {
         setConfig(data);
         setLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch config');
+        setError(err instanceof Error ? err.message : "Failed to fetch config");
         setLoading(false);
       }
     };

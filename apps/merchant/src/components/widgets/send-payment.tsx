@@ -160,16 +160,13 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
       console.log("\n\n[PAYLOAD]", sigObj, "\n\n");
 
       // * 3. We send the payment to the merchant viia tx-pipe API
-      const res = await fetch(
-        `/api/hydra/pay-merchant`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(sigObj),
+      const res = await fetch(`/api/hydra/pay-merchant`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(sigObj),
+      });
 
       // * 4. wait for a couple of seconds and set trigger in database
       setTimeout(async () => {

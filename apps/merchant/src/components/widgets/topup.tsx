@@ -143,16 +143,13 @@ export const Topup = ({ children }: TopupProps) => {
       // console.info("[RAW DECIMALS]", rawDecimals);
       // console.info("[PAYLOAD]", payload, "\n\n");
 
-      const topUpRes = await fetch(
-        `/api/hydra/deposit`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
+      const topUpRes = await fetch(`/api/hydra/deposit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
       if (topUpRes.ok) {
         try {

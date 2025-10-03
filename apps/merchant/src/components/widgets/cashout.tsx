@@ -110,16 +110,13 @@ export const Cashout = ({ children }: CashoutProps) => {
     };
 
     try {
-      const res = await fetch(
-        `/api/hydra/withdraw`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newCashout),
+      const res = await fetch(`/api/hydra/withdraw`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(newCashout),
+      });
 
       const data = await res.json();
       console.log("DATA", data);

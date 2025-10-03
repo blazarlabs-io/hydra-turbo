@@ -16,7 +16,7 @@ function GoogleMapsProvider({ children }: { children: React.ReactNode }) {
   }
 
   if (error || !config) {
-    console.error('Failed to load Google Maps config:', error);
+    console.error("Failed to load Google Maps config:", error);
     return <>{children}</>; // Render without Google Maps
   }
 
@@ -35,9 +35,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           <MeshProvider>
             <WalletProvider>
               <TransactionsProvider>
-                <GoogleMapsProvider>
-                  {children}
-                </GoogleMapsProvider>
+                <GoogleMapsProvider>{children}</GoogleMapsProvider>
               </TransactionsProvider>
             </WalletProvider>
           </MeshProvider>

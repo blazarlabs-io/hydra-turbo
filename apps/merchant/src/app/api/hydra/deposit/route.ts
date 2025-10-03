@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     console.error("Error depositing funds:", error);
     return NextResponse.json(
       { error: "Failed to deposit funds" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

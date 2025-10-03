@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     if (!address) {
       return NextResponse.json(
         { error: "Address parameter is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     console.error("Error querying funds:", error);
     return NextResponse.json(
       { error: "Failed to query funds" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

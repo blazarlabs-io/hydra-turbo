@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     console.error("Error paying merchant:", error);
     return NextResponse.json(
       { error: "Failed to pay merchant" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
