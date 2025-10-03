@@ -14,33 +14,30 @@ export async function POST(req: Request) {
   // Validate JSON body
   const bodyResult = await validateJsonBody(req);
   if (!bodyResult.ok) {
-    return new Response(
-      JSON.stringify({ error: bodyResult.error }),
-      { status: 400 }
-    );
+    return new Response(JSON.stringify({ error: bodyResult.error }), {
+      status: 400,
+    });
   }
 
   const { uid, email, isMerchant } = bodyResult.body;
 
   // Validate required fields
-  if (!uid || typeof uid !== 'string' || !uid.trim()) {
-    return new Response(
-      JSON.stringify({ error: "Invalid or missing uid" }),
-      { status: 400 }
-    );
+  if (!uid || typeof uid !== "string" || !uid.trim()) {
+    return new Response(JSON.stringify({ error: "Invalid or missing uid" }), {
+      status: 400,
+    });
   }
 
-  if (!email || typeof email !== 'string' || !isValidEmail(email)) {
-    return new Response(
-      JSON.stringify({ error: "Invalid or missing email" }),
-      { status: 400 }
-    );
+  if (!email || typeof email !== "string" || !isValidEmail(email)) {
+    return new Response(JSON.stringify({ error: "Invalid or missing email" }), {
+      status: 400,
+    });
   }
 
-  if (typeof isMerchant !== 'boolean') {
+  if (typeof isMerchant !== "boolean") {
     return new Response(
       JSON.stringify({ error: "isMerchant must be a boolean" }),
-      { status: 400 }
+      { status: 400 },
     );
   }
 

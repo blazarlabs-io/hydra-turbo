@@ -16,8 +16,11 @@ export async function POST(request: Request) {
   const { email } = bodyResult.body;
 
   // Validate email
-  if (!email || typeof email !== 'string' || !isValidEmail(email)) {
-    return Response.json({ error: "Invalid or missing email" }, { status: 400 });
+  if (!email || typeof email !== "string" || !isValidEmail(email)) {
+    return Response.json(
+      { error: "Invalid or missing email" },
+      { status: 400 },
+    );
   }
 
   await initAdmin();
@@ -32,10 +35,7 @@ export async function POST(request: Request) {
     handleCodeInApp: true,
   };
 
-  const url = await auth.generatePasswordResetLink(
-    email,
-    actionCodeSettings,
-  );
+  const url = await auth.generatePasswordResetLink(email, actionCodeSettings);
 
   const params = url.split("?")[1];
   const recoveryLink = `${baseUrl}?${params}`;
