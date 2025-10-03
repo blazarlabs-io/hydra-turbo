@@ -45,7 +45,7 @@ function cspFromAllowlist(allow) {
 
   const connect = [self, ...allow.connect];
   const img = [self, data, blob, ...allow.img];
-  const script = [self, "'unsafe-inline'", ...allow.script]; // Temporary: allow inline scripts for Next.js
+  const script = [self, "'unsafe-inline'", "'unsafe-eval'", ...allow.script]; // Temporary: allow inline scripts and eval for Next.js/webpack
   const style = [self, "'unsafe-inline'", ...allow.style]; // Consider removing 'unsafe-inline' after auditing
   const font = [self, data, ...allow.font];
   const frame = allow.frame.length > 0 ? [self, ...allow.frame] : ["'none'"]; // default deny; add needed frames explicitly
