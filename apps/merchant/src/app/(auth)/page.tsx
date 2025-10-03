@@ -1,16 +1,8 @@
-// import { ConfirmEmailPage } from "~/src/features/authentication/pages/confirm-email-page";
+import { redirect } from "next/navigation";
+
 // Force dynamic rendering to prevent Cardano library issues during build
-export const dynamic = 'force-dynamic';
-// import { ConfirmEmailParamsType } from "~/src/features/authentication/types";
+export const dynamic = "force-dynamic";
 
-// type Params = Promise<{ mode: string }>;
-// type SearchParams = Promise<ConfirmEmailParamsType>;
-
-// export default async function ConfirmEmail(props: {
-//   params: Params;
-//   searchParams: SearchParams;
-// }) {
-//   const searchParams = await props.searchParams;
-
-//   return <ConfirmEmailPage {...searchParams} />;
-// }
+export default function AuthPage() {
+  redirect("/login");
+}

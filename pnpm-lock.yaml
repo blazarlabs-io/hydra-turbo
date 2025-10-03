@@ -4,6 +4,43 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@types/eslint':
+      specifier: ^8
+      version: 8.56.12
+    '@types/node':
+      specifier: ^20
+      version: 20.19.17
+    eslint:
+      specifier: ^8.57.0
+      version: 8.57.1
+    lucide-react:
+      specifier: ^0.451.0
+      version: 0.451.0
+    prettier:
+      specifier: ^3.3.3
+      version: 3.6.2
+    tailwindcss:
+      specifier: ^3.4.13
+      version: 3.4.17
+    typescript:
+      specifier: ^5.6.3
+      version: 5.9.2
+  react18:
+    '@types/react':
+      specifier: ^18.3.11
+      version: 18.3.24
+    '@types/react-dom':
+      specifier: ^18.3.0
+      version: 18.3.7
+    react:
+      specifier: ^18.3.1
+      version: 18.3.1
+    react-dom:
+      specifier: ^18.3.1
+      version: 18.3.1
+
 importers:
 
   .:
@@ -43,7 +80,7 @@ importers:
         version: 0.468.0(react@18.3.1)
       next:
         specifier: 14.2.8
-        version: 14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 14.2.8(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: catalog:react18
         version: 18.3.1
@@ -190,7 +227,7 @@ importers:
         version: link:../../packages/ui
       '@sanity/client':
         specifier: ^6.24.1
-        version: 6.29.1
+        version: 6.29.1(debug@4.4.3)
       '@sendgrid/mail':
         specifier: ^8.1.4
         version: 8.1.6
@@ -220,7 +257,7 @@ importers:
         version: 2.1.1
       cookies-next:
         specifier: ^5.1.0
-        version: 5.1.0(next@14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        version: 5.1.0(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       firebase:
         specifier: ^11.1.0
         version: 11.10.0
@@ -237,11 +274,11 @@ importers:
         specifier: ^0.469.0
         version: 0.469.0(react@18.3.1)
       next:
-        specifier: ^14.2.3
-        version: 14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^15.5.4
+        version: 15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-intl:
         specifier: ^3.26.3
-        version: 3.26.5(next@14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        version: 3.26.5(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       next-themes:
         specifier: ^0.4.4
         version: 0.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1318,6 +1355,9 @@ packages:
   '@codemirror/commands@6.8.1':
     resolution: {integrity: sha512-KlGVYufHMQzxbdQONiLyGQDUW0itrLZwq3CcY7xpv9ZLRHqzkBSoteocBHtMCoY7/Ci4xhzSrToIeLg7FxHuaw==}
 
+  '@codemirror/commands@6.9.0':
+    resolution: {integrity: sha512-454TVgjhO6cMufsyyGN70rGIfJxJEjcqjBG2x2Y03Y/+Fm99d3O/Kv1QDYWuG6hvxsgmjXmBuATikIIYvERX+w==}
+
   '@codemirror/lang-javascript@6.2.4':
     resolution: {integrity: sha512-0WVmhp1QOqZ4Rt6GlVGwKJN3KW7Xh4H2q8ZZNGZaP6lRdxXJzmjm4FqvmOojVj6khWJHIb9sp7U/72W7xQgqAA==}
 
@@ -1338,6 +1378,9 @@ packages:
 
   '@codemirror/view@6.38.3':
     resolution: {integrity: sha512-x2t87+oqwB1mduiQZ6huIghjMt4uZKFEdj66IcXw7+a5iBEvv9lh7EWDRHI7crnD4BMGpnyq/RzmCGbiEZLcvQ==}
+
+  '@codemirror/view@6.38.4':
+    resolution: {integrity: sha512-hduz0suCcUSC/kM8Fq3A9iLwInJDl8fD1xLpTIk+5xkNm8z/FT7UsIa9sOXrkpChh+XXc18RzswE8QqELsVl+g==}
 
   '@connectrpc/connect-node@1.4.0':
     resolution: {integrity: sha512-0ANnrr6SvsjevsWEgdzHy7BaHkluZyS6s4xNoVt7RBHFR5V/kT9lPokoIbYUOU9JHzdRgTaS3x5595mwUsu15g==}
@@ -11605,7 +11648,7 @@ snapshots:
 
   '@abandonware/bleno@0.6.2(encoding@0.1.13)':
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       napi-thread-safe-callback: 0.0.6
       node-addon-api: 6.1.0
     optionalDependencies:
@@ -11620,7 +11663,7 @@ snapshots:
   '@abandonware/bluetooth-hci-socket@0.5.3-12(encoding@0.1.13)':
     dependencies:
       '@mapbox/node-pre-gyp': 1.0.11(encoding@0.1.13)
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       nan: 2.23.0
       node-gyp: 10.3.1
     optionalDependencies:
@@ -11773,7 +11816,7 @@ snapshots:
       '@babel/types': 7.28.4
       '@jridgewell/remapping': 2.3.5
       convert-source-map: 2.0.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -12502,7 +12545,7 @@ snapshots:
       '@babel/parser': 7.28.4
       '@babel/template': 7.27.2
       '@babel/types': 7.28.4
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -12823,6 +12866,13 @@ snapshots:
       '@codemirror/view': 6.38.3
       '@lezer/common': 1.2.3
 
+  '@codemirror/commands@6.9.0':
+    dependencies:
+      '@codemirror/language': 6.11.3
+      '@codemirror/state': 6.5.2
+      '@codemirror/view': 6.38.4
+      '@lezer/common': 1.2.3
+
   '@codemirror/lang-javascript@6.2.4':
     dependencies:
       '@codemirror/autocomplete': 6.19.0
@@ -12862,10 +12912,17 @@ snapshots:
     dependencies:
       '@codemirror/language': 6.11.3
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.3
+      '@codemirror/view': 6.38.4
       '@lezer/highlight': 1.2.1
 
   '@codemirror/view@6.38.3':
+    dependencies:
+      '@codemirror/state': 6.5.2
+      crelt: 1.0.6
+      style-mod: 4.1.2
+      w3c-keyname: 2.2.8
+
+  '@codemirror/view@6.38.4':
     dependencies:
       '@codemirror/state': 6.5.2
       crelt: 1.0.6
@@ -16137,14 +16194,6 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@sanity/client@6.29.1':
-    dependencies:
-      '@sanity/eventsource': 5.0.2
-      get-it: 8.6.10
-      rxjs: 7.8.2
-    transitivePeerDependencies:
-      - debug
-
   '@sanity/client@6.29.1(debug@4.4.3)':
     dependencies:
       '@sanity/eventsource': 5.0.2
@@ -16659,7 +16708,7 @@ snapshots:
   '@serialport/binding-mock@10.2.2':
     dependencies:
       '@serialport/bindings-interface': 1.2.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -16756,7 +16805,7 @@ snapshots:
     dependencies:
       chrome-dgram: 3.0.6
       cross-fetch-ponyfill: 1.0.3
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       default-gateway: 7.2.2
       unordered-array-remove: 1.0.2
       xml2js: 0.6.2
@@ -16819,7 +16868,7 @@ snapshots:
 
   '@thaunknown/simple-peer@10.0.12':
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       err-code: 3.0.1
       streamx: 2.22.1
       uint8-util: 2.2.5
@@ -16830,7 +16879,7 @@ snapshots:
 
   '@thaunknown/simple-websocket@9.1.3(bufferutil@4.0.9)(utf-8-validate@6.0.5)':
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       queue-microtask: 1.2.3
       streamx: 2.22.1
       uint8-util: 2.2.5
@@ -17627,7 +17676,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -17856,7 +17905,7 @@ snapshots:
 
   axios@1.12.2:
     dependencies:
-      follow-redirects: 1.15.11
+      follow-redirects: 1.15.11(debug@4.4.3)
       form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -18023,7 +18072,7 @@ snapshots:
   bittorrent-dht@11.0.11:
     dependencies:
       bencode: 4.0.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       k-bucket: 5.1.0
       k-rpc: 5.1.0
       last-one-wins: 1.0.4
@@ -18037,7 +18086,7 @@ snapshots:
   bittorrent-lsd@2.0.0:
     dependencies:
       chrome-dgram: 3.0.6
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -18047,7 +18096,7 @@ snapshots:
     dependencies:
       bencode: 4.0.0
       bitfield: 4.2.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       rc4: 0.1.5
       streamx: 2.22.1
       throughput: 1.0.2
@@ -18066,7 +18115,7 @@ snapshots:
       chrome-dgram: 3.0.6
       compact2string: 1.4.1
       cross-fetch-ponyfill: 1.0.3
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       ip: 2.0.1
       lru: 3.1.0
       minimist: 1.2.8
@@ -18496,12 +18545,12 @@ snapshots:
   codemirror@6.0.2:
     dependencies:
       '@codemirror/autocomplete': 6.19.0
-      '@codemirror/commands': 6.8.1
+      '@codemirror/commands': 6.9.0
       '@codemirror/language': 6.11.3
       '@codemirror/lint': 6.8.5
       '@codemirror/search': 6.5.11
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.3
+      '@codemirror/view': 6.38.4
 
   collapse-white-space@2.1.0: {}
 
@@ -18589,10 +18638,10 @@ snapshots:
 
   cookie@1.0.2: {}
 
-  cookies-next@5.1.0(next@14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
+  cookies-next@5.1.0(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
     dependencies:
       cookie: 1.0.2
-      next: 14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next: 15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
 
   core-js-compat@3.45.1:
@@ -18965,10 +19014,6 @@ snapshots:
       ms: 2.1.3
 
   debug@4.4.0:
-    dependencies:
-      ms: 2.1.3
-
-  debug@4.4.3:
     dependencies:
       ms: 2.1.3
 
@@ -20061,8 +20106,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  follow-redirects@1.15.11: {}
-
   follow-redirects@1.15.11(debug@4.4.3):
     optionalDependencies:
       debug: 4.4.3(supports-color@8.1.1)
@@ -20244,17 +20287,6 @@ snapshots:
       has-symbols: 1.1.0
       hasown: 2.0.2
       math-intrinsics: 1.1.0
-
-  get-it@8.6.10:
-    dependencies:
-      '@types/follow-redirects': 1.14.4
-      decompress-response: 7.0.0
-      follow-redirects: 1.15.11
-      is-retry-allowed: 2.2.0
-      through2: 4.0.2
-      tunnel-agent: 0.6.0
-    transitivePeerDependencies:
-      - debug
 
   get-it@8.6.10(debug@4.4.3):
     dependencies:
@@ -20722,7 +20754,7 @@ snapshots:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -20730,14 +20762,14 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@5.0.1:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
     optional: true
@@ -20745,7 +20777,7 @@ snapshots:
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -21299,7 +21331,7 @@ snapshots:
     dependencies:
       '@types/express': 4.17.23
       '@types/jsonwebtoken': 9.0.10
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       jose: 4.15.9
       limiter: 1.1.5
       lru-memoizer: 2.3.0
@@ -21513,7 +21545,7 @@ snapshots:
 
   lt_donthave@2.0.6:
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       unordered-array-remove: 1.0.2
     transitivePeerDependencies:
       - supports-color
@@ -22361,11 +22393,11 @@ snapshots:
 
   netmask@2.0.2: {}
 
-  next-intl@3.26.5(next@14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
+  next-intl@3.26.5(next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
     dependencies:
       '@formatjs/intl-localematcher': 0.5.10
       negotiator: 1.0.0
-      next: 14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next: 15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       use-intl: 3.26.5(react@18.3.1)
 
@@ -22384,7 +22416,7 @@ snapshots:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
 
-  next@14.2.8(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@14.2.8(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@next/env': 14.2.8
       '@swc/helpers': 0.5.5
@@ -22394,7 +22426,7 @@ snapshots:
       postcss: 8.4.31
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.1(@babel/core@7.28.4)(react@18.3.1)
+      styled-jsx: 5.1.1(react@18.3.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 14.2.8
       '@next/swc-darwin-x64': 14.2.8
@@ -22406,6 +22438,30 @@ snapshots:
       '@next/swc-win32-ia32-msvc': 14.2.8
       '@next/swc-win32-x64-msvc': 14.2.8
       '@opentelemetry/api': 1.9.0
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
+  next@15.5.4(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@next/env': 15.5.4
+      '@swc/helpers': 0.5.15
+      caniuse-lite: 1.0.30001745
+      postcss: 8.4.31
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      styled-jsx: 5.1.6(@babel/core@7.28.4)(react@18.3.1)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 15.5.4
+      '@next/swc-darwin-x64': 15.5.4
+      '@next/swc-linux-arm64-gnu': 15.5.4
+      '@next/swc-linux-arm64-musl': 15.5.4
+      '@next/swc-linux-x64-gnu': 15.5.4
+      '@next/swc-linux-x64-musl': 15.5.4
+      '@next/swc-win32-arm64-msvc': 15.5.4
+      '@next/swc-win32-x64-msvc': 15.5.4
+      '@opentelemetry/api': 1.9.0
+      sharp: 0.34.4
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
@@ -24365,7 +24421,7 @@ snapshots:
   socks-proxy-agent@7.0.0:
     dependencies:
       agent-base: 6.0.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       socks: 2.8.7
     transitivePeerDependencies:
       - supports-color
@@ -24374,7 +24430,7 @@ snapshots:
   socks-proxy-agent@8.0.5:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       socks: 2.8.7
     transitivePeerDependencies:
       - supports-color
@@ -24655,7 +24711,12 @@ snapshots:
       stylis: 4.3.2
       tslib: 2.6.2
 
-  styled-jsx@5.1.1(@babel/core@7.28.4)(react@18.3.1):
+  styled-jsx@5.1.1(react@18.3.1):
+    dependencies:
+      client-only: 0.0.1
+      react: 18.3.1
+
+  styled-jsx@5.1.6(@babel/core@7.28.4)(react@18.3.1):
     dependencies:
       client-only: 0.0.1
       react: 18.3.1
@@ -24892,7 +24953,7 @@ snapshots:
       bittorrent-dht: 11.0.11
       bittorrent-lsd: 2.0.0
       bittorrent-tracker: 11.2.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       run-parallel: 1.2.0
     transitivePeerDependencies:
       - react-native-b4a
@@ -25383,7 +25444,7 @@ snapshots:
     dependencies:
       bencode: 4.0.0
       bitfield: 4.2.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       uint8-util: 2.2.5
     transitivePeerDependencies:
       - supports-color
@@ -25570,7 +25631,7 @@ snapshots:
       cpus: 1.0.3
       create-torrent: 6.1.0
       cross-fetch-ponyfill: 1.0.3
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       escape-html: 1.0.3
       fs-chunk-store: 5.0.0
       fsa-chunk-store: 1.3.0

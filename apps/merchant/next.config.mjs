@@ -14,7 +14,7 @@ const nextConfig = {
   transpilePackages: ["@repo/ui"],
   experimental: {
     // Enable async WASM loading (recommended)
-    wasm: true,
+    // wasm: true, // This option is not valid in Next.js 15
   },
   webpack(config, options) {
     config.experiments = {
