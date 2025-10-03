@@ -11,13 +11,10 @@ import { usePublicConfig } from "../hooks/use-public-config";
 function GoogleMapsProvider({ children }: { children: React.ReactNode }) {
   const { config, loading, error } = usePublicConfig();
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error || !config) {
-    console.error("Failed to load Google Maps config:", error);
-    return <>{children}</>; // Render without Google Maps
+  // Don't block the app while loading Google Maps config
+  // Just render children without Google Maps until config loads
+  if (loading || error || !config) {
+    return <>{children}</>; // Render children without Google Maps
   }
 
   return (
