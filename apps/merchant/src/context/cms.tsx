@@ -86,5 +86,5 @@ export const CmsProvider = ({
     sweetness,
   };
 
-  return <CmsContext.Provider value={value}>{children}</CmsContext.Provider>;
+  return <CmsContext.Provider value={value}>{children as any}</CmsContext.Provider>;
 };

@@ -68,5 +68,5 @@ export const AuthProvider = ({
 
   const value = { user, setUserHandler, singOutUserHandler };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children as any}</AuthContext.Provider>;
 };

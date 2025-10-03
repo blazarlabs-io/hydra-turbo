@@ -49,7 +49,7 @@ export const TransactionsProvider = ({
 
   return (
     <TransactionsContext.Provider value={value}>
-      {children}
+      {children as any}
     </TransactionsContext.Provider>
   );
 };

@@ -5,7 +5,6 @@ import { Asset, DbResponse, Transaction, UserData, Wallet } from "@/types/db";
 // LIBS
 import {
   createContext,
-  use,
   useCallback,
   useContext,
   useEffect,
@@ -656,6 +655,6 @@ export const WalletProvider = ({
   };
 
   return (
-    <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
+    <WalletContext.Provider value={value}>{children as any}</WalletContext.Provider>
   );
 };

@@ -8,14 +8,14 @@ export const metadata: Metadata = {
   description: "Trusted solutions for wine producers worldwide.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <PublicLayout>
-      <Suspense fallback={<LoadingPage />}>{children}</Suspense>
+      <Suspense fallback={<LoadingPage />}>{children as any}</Suspense>
     </PublicLayout>
   );
 }
