@@ -44,11 +44,25 @@ export const AuthProvider = ({
   const setUserHandler = async (user: User) => {
     setUser(user);
     const idToken = await user.getIdToken();
-    setCookie(AUTH_COOKIE, idToken, {
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
+    
+    // Set secure auth cookie via API route
+    try {
+      await fetch("/api/auth/set-cookie", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: idToken }),
+      });
+    } catch (error) {
+      console.error("Failed to set secure auth cookie:", error);
+      // Fallback to client-side cookie (less secure but functional)
+      setCookie(AUTH_COOKIE, idToken, {
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+    }
   };
 
   const singOutUserHandler = async () => {
@@ -59,11 +73,31 @@ export const AuthProvider = ({
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        await setUserHandler(user);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        // Set secure auth cookie via API route
+        const idToken = await firebaseUser.getIdToken();
+        try {
+          await fetch("/api/auth/set-cookie", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token: idToken }),
+          });
+        } catch (error) {
+          console.error("Failed to set secure auth cookie on auth state change:", error);
+          // Fallback to client-side cookie
+          setCookie(AUTH_COOKIE, idToken, {
+            path: "/",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+          });
+        }
       } else {
         setUser(null);
+        deleteCookie(AUTH_COOKIE);
       }
       setLoading(false);
     });
