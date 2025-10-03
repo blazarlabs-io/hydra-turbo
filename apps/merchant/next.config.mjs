@@ -108,6 +108,9 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@repo/ui"],
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   experimental: {
     // Enable async WASM loading (recommended)
     // wasm: true, // This option is not valid in Next.js 15

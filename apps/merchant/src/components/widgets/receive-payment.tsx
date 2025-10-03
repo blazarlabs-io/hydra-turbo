@@ -113,7 +113,7 @@ export const ReceivePayment = ({ children }: ReceivePaymentProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button className="min-w-[88px]">{children}</Button>
+        <Button className="min-w-[88px]">{String(children)}</Button>
       </SheetTrigger>
       <SheetContent
         side="bottom"
