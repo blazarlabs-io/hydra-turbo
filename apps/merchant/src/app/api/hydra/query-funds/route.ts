@@ -1,15 +1,27 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
+import { validateRequiredParam } from "@/lib/validation/http";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const address = searchParams.get("address");
-
-    if (!address) {
+    
+    // Validate address parameter
+    const addressResult = validateRequiredParam(searchParams, "address");
+    if (!addressResult.ok) {
       return NextResponse.json(
-        { error: "Address parameter is required" },
+        { error: addressResult.error },
+        { status: 400 },
+      );
+    }
+
+    const address = addressResult.value;
+
+    // Additional validation for address format (basic check)
+    if (address.length < 10 || address.length > 100) {
+      return NextResponse.json(
+        { error: "Invalid address format" },
         { status: 400 },
       );
     }

@@ -4,8 +4,22 @@ import { emailTemplates } from "@/utils/";
 import { ActionCodeSettings } from "firebase-admin/auth";
 import { env } from "@/lib/env";
 import { getAdminAuth, initAdmin } from "@/lib/firebase/admin";
+import { validateJsonBody, isValidEmail } from "@/lib/validation/http";
 
 export async function POST(request: Request) {
+  // Validate JSON body
+  const bodyResult = await validateJsonBody(request);
+  if (!bodyResult.ok) {
+    return Response.json({ error: bodyResult.error }, { status: 400 });
+  }
+
+  const { email } = bodyResult.body;
+
+  // Validate email
+  if (!email || typeof email !== 'string' || !isValidEmail(email)) {
+    return Response.json({ error: "Invalid or missing email" }, { status: 400 });
+  }
+
   await initAdmin();
   const auth = getAdminAuth();
 
@@ -18,10 +32,8 @@ export async function POST(request: Request) {
     handleCodeInApp: true,
   };
 
-  const data = await request.json();
-
   const url = await auth.generatePasswordResetLink(
-    data.email,
+    email,
     actionCodeSettings,
   );
 
@@ -29,12 +41,12 @@ export async function POST(request: Request) {
   const recoveryLink = `${baseUrl}?${params}`;
 
   const msg: sgMail.MailDataRequired = {
-    to: data.email,
+    to: email,
     from: env.TRACECORK_EMAIL, // Use the email address or domain you verified above
     templateId: emailTemplates["password-recovery"],
     personalizations: [
       {
-        to: [{ email: data.email }],
+        to: [{ email: email }],
         dynamicTemplateData: {
           recoveryLink,
         },
