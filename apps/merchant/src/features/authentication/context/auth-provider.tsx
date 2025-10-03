@@ -78,7 +78,9 @@ export const AuthProvider = ({
     let isProcessing = false;
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (isProcessing) {
-        console.log("[AUTH_PROVIDER] Already processing auth state change, skipping");
+        console.log(
+          "[AUTH_PROVIDER] Already processing auth state change, skipping",
+        );
         return;
       }
       isProcessing = true;

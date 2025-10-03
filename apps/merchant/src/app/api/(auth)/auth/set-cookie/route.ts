@@ -10,8 +10,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { token } = body;
 
-    if (!token || typeof token !== 'string') {
-      return NextResponse.json({ error: "Invalid or missing token" }, { status: 400 });
+    if (!token || typeof token !== "string") {
+      return NextResponse.json(
+        { error: "Invalid or missing token" },
+        { status: 400 },
+      );
     }
 
     // Set the auth cookie with secure flags

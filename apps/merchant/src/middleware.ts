@@ -66,8 +66,13 @@ export async function middleware(request: NextRequest) {
         `[MIDDLEWARE] Redirecting authenticated user from auth/root route to: ${redirectPath}`,
       );
       // Use replace instead of redirect to prevent back button issues
-      const response = NextResponse.redirect(new URL(redirectPath, request.url));
-      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      const response = NextResponse.redirect(
+        new URL(redirectPath, request.url),
+      );
+      response.headers.set(
+        "Cache-Control",
+        "no-cache, no-store, must-revalidate",
+      );
       return response;
     }
     // * IF TRIES ACCESSING TO A PRIVATE ROUTE, AND EMAIL IS NOT VERIFIED, REDIRECT TO VERIFY EMAIL PAGE
