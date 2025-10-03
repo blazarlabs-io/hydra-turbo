@@ -20,7 +20,9 @@ export async function middleware(request: NextRequest) {
 
   console.log(`[MIDDLEWARE] Processing request to: ${pathname}`);
   console.log(`[MIDDLEWARE] Has auth token: ${!!idToken}`);
-  console.log(`[MIDDLEWARE] Token preview: ${idToken ? idToken.substring(0, 20) + '...' : 'none'}`);
+  console.log(
+    `[MIDDLEWARE] Token preview: ${idToken ? idToken.substring(0, 20) + "..." : "none"}`,
+  );
 
   // if there is a token, check if it is valid if not delete it
   if (!!idToken) {
@@ -53,17 +55,23 @@ export async function middleware(request: NextRequest) {
     );
     let email_verified = true;
 
-    console.log(`[MIDDLEWARE] Route analysis: onPrivateRoute=${onPrivateRoute}, onAuthRoute=${onAuthRoute}, onConfirmEmail=${onConfirmEmail}, OnVerifyEmail=${OnVerifyEmail}`);
+    console.log(
+      `[MIDDLEWARE] Route analysis: onPrivateRoute=${onPrivateRoute}, onAuthRoute=${onAuthRoute}, onConfirmEmail=${onConfirmEmail}, OnVerifyEmail=${OnVerifyEmail}`,
+    );
 
     //  * IF TRIES ACCESSING TO AN AUTH OR ROOT PAGE PREVENT ACCESS IF EMAIL IS VERIFIED
     if (pathname === "/" || onAuthRoute) {
       const redirectPath = email_verified ? "/dashboard/home" : "/verify-email";
-      console.log(`[MIDDLEWARE] Redirecting from auth/root route to: ${redirectPath}`);
+      console.log(
+        `[MIDDLEWARE] Redirecting authenticated user from auth/root route to: ${redirectPath}`,
+      );
       return NextResponse.redirect(new URL(redirectPath, request.url));
     }
     // * IF TRIES ACCESSING TO A PRIVATE ROUTE, AND EMAIL IS NOT VERIFIED, REDIRECT TO VERIFY EMAIL PAGE
     if (onPrivateRoute && !email_verified) {
-      console.log(`[MIDDLEWARE] Email not verified, redirecting to verify-email`);
+      console.log(
+        `[MIDDLEWARE] Email not verified, redirecting to verify-email`,
+      );
       return NextResponse.redirect(new URL("/verify-email", request.url));
     }
     // * IF TRIES ACCESSING TO CONFIRM EMAIL OR VERIFY PAGE, AND BEING EMAIL ALREADY VERIFIED, REDIRECT TO DASHBOARD
@@ -71,11 +79,18 @@ export async function middleware(request: NextRequest) {
       console.log(`[MIDDLEWARE] Email verified, redirecting to dashboard`);
       return NextResponse.redirect(new URL("/dashboard/home", request.url));
     }
-    console.log(`[MIDDLEWARE] Allowing access to authenticated route: ${pathname}`);
+    console.log(
+      `[MIDDLEWARE] Allowing access to authenticated route: ${pathname}`,
+    );
     return response;
   } else {
     console.log(`[MIDDLEWARE] User not authenticated`);
     // * BEING NOT LOGGED IN
+    // * IF TRIES ACCESSING ROOT PAGE, REDIRECT TO HOME
+    if (pathname === "/") {
+      console.log(`[MIDDLEWARE] Redirecting unauthenticated user from root to /home`);
+      return NextResponse.redirect(new URL("/home", request.url));
+    }
     // * IF TRIES ACCESSING PRIVATE ROUTES, VERIFY EMAIL PAGE, REDIRECT TO LOGIN
     if (onPrivateRoute || OnVerifyEmail) {
       console.log(`[MIDDLEWARE] Redirecting unauthenticated user to login`);
