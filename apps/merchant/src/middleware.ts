@@ -14,13 +14,16 @@ const authProtectedRoutes = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const response = NextResponse.next();
   const idToken = request.cookies.get(AUTH_COOKIE)?.value;
   let authData: CheckIdTokenResp | undefined = undefined;
-  console.log("Middleware", idToken);
+  
   // if there is a token, check if it is valid if not delete it
   if (!!idToken) {
     authData = await checkIdToken(idToken, request.url);
-    if (!authData) request.cookies.delete(AUTH_COOKIE);
+    if (!authData) {
+      response.cookies.delete(AUTH_COOKIE);
+    }
   }
 
   // Being user logged in, redirect by user privileges if necessary, otherwise continue with free access
@@ -50,14 +53,14 @@ export async function middleware(request: NextRequest) {
     if ((onConfirmEmail || OnVerifyEmail) && email_verified) {
       return NextResponse.redirect(new URL("/dashboard/home", request.url));
     }
-    return NextResponse.next();
+    return response;
   } else {
     // * BEING NOT LOGGED IN
     // * IF TRIES ACCESSING PRIVATE ROUTES, VERIFY EMAIL PAGE, REDIRECT TO LOGIN
     if (onPrivateRoute || OnVerifyEmail) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
-    return NextResponse.next();
+    return response;
   }
 
   // if (pathname.startsWith("/api")) {
@@ -69,7 +72,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/api/:path*",
     "/dashboard/:path*",
     "/login",
     "/signup",
@@ -79,5 +81,6 @@ export const config = {
     "/password-rest-sent",
     "/confirm-email",
     "/verify-email",
+    "/api/((?!auth/verify-id-token).*)", // Exclude verify-id-token to prevent recursion
   ],
 };

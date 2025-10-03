@@ -19,7 +19,10 @@
     "https://api.unisvg.com",
     "https://api.simplesvg.com",
     "http://localhost:*",
-    "http://127.0.0.1:*"
+    "http://127.0.0.1:*",
+    "https://blazar.local:*",
+    "ws://localhost:*",
+    "wss://blazar.local:*"
   ],
   "img": [
     "https://firebasestorage.googleapis.com",
