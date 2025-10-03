@@ -12,12 +12,14 @@ import { removeFromLocalStorage } from "~/src/utils/local-storage";
 
 interface AuthContextInterface {
   user: User | null;
+  loading: boolean;
   setUserHandler: (user: User) => Promise<void>;
   singOutUserHandler: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextInterface>({
   user: null,
+  loading: true,
   setUserHandler: async () => {},
   singOutUserHandler: async () => {},
 });
@@ -36,6 +38,7 @@ export const AuthProvider = ({
   children,
 }: React.PropsWithChildren): JSX.Element => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
   const pathname = usePathname();
   const setUserHandler = async (user: User) => {
@@ -57,8 +60,12 @@ export const AuthProvider = ({
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-      await setUserHandler(user);
+      if (user) {
+        await setUserHandler(user);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
     });
 
     return () => {
@@ -66,7 +73,7 @@ export const AuthProvider = ({
     };
   }, []);
 
-  const value = { user, setUserHandler, singOutUserHandler };
+  const value = { user, loading, setUserHandler, singOutUserHandler };
 
   return <AuthContext.Provider value={value}>{children as any}</AuthContext.Provider>;
 };
