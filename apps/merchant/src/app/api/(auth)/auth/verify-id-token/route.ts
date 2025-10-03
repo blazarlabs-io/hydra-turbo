@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAdminAuth, initAdmin } from "@/lib/firebase/admin";
 import { parseBearerToken } from "@/lib/validation/http";
+import { secureLogError } from "@/lib/logging";
+import { toPublicError, CommonErrors } from "@/lib/errors";
 
 export async function POST(request: Request) {
   try {
@@ -19,10 +21,20 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ token, decodedData });
   } catch (error) {
-    console.error("Token verification error:", error);
+    // Log securely with context, no stack traces in production
+    secureLogError(error, {
+      operation: "verifyIdToken",
+      endpoint: "/api/auth/verify-id-token",
+    });
+
+    // Return sanitized error response
+    const publicError = toPublicError(
+      error,
+      CommonErrors.AUTHENTICATION_FAILED,
+    );
     return NextResponse.json(
-      { error: "Invalid or expired token" },
-      { status: 401 },
+      { error: publicError.message },
+      { status: publicError.status },
     );
   }
 }

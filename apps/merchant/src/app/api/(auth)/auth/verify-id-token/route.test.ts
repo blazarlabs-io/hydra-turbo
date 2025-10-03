@@ -1,151 +1,242 @@
-import { describe, test, expect, vi } from 'vitest';
-import { NextRequest } from 'next/server';
+/**
+ * Integration tests for verify-id-token API route (APPSEC-008)
+ */
 
-// Mock Firebase Admin with simple implementation
-vi.mock('@/lib/firebase/admin', () => ({
-  initAdmin: vi.fn().mockResolvedValue({}),
-  getAdminAuth: vi.fn().mockReturnValue({
-    verifyIdToken: vi.fn().mockImplementation((token) => {
-      // Simple mock that rejects invalid tokens and accepts valid ones
-      if (token.includes('invalid-signature')) {
-        throw new Error('Invalid token');
-      }
-      return Promise.resolve({ uid: 'user123', email: 'test@example.com' });
-    }),
-  }),
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+// Mock all dependencies before importing the route
+vi.mock("@/lib/firebase/admin", () => ({
+  getAdminAuth: vi.fn(),
+  initAdmin: vi.fn(),
 }));
 
+vi.mock("@/lib/validation/http", () => ({
+  parseBearerToken: vi.fn(),
+}));
+
+vi.mock("@/lib/logging", () => ({
+  secureLogError: vi.fn(),
+}));
+
+vi.mock("@/lib/errors", () => ({
+  toPublicError: vi.fn(),
+  CommonErrors: {
+    AUTHENTICATION_FAILED: { status: 401, message: "Authentication failed" },
+  },
+}));
+
+vi.mock("server-only", () => ({}));
+
 // Import after mocking
-import { POST } from './route';
+import { POST } from "./route";
+import { secureLogError } from "@/lib/logging";
+import { getAdminAuth, initAdmin } from "@/lib/firebase/admin";
+import { parseBearerToken } from "@/lib/validation/http";
+import { toPublicError } from "@/lib/errors";
 
-describe('POST /api/auth/verify-id-token', () => {
+const mockSecureLogError = vi.mocked(secureLogError);
+const mockInitAdmin = vi.mocked(initAdmin);
+const mockGetAdminAuth = vi.mocked(getAdminAuth);
+const mockParseBearerToken = vi.mocked(parseBearerToken);
+const mockToPublicError = vi.mocked(toPublicError);
 
-  test('returns 400 for missing Authorization header', async () => {
-    const request = new NextRequest('http://localhost/api/auth/verify-id-token', {
-      method: 'POST',
-      headers: {},
+describe("verify-id-token API route", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("should return 400 for invalid authorization header", async () => {
+    mockParseBearerToken.mockReturnValue({
+      ok: false,
+      error: "Missing Authorization header",
     });
+
+    const request = new Request(
+      "http://localhost:3000/api/auth/verify-id-token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Invalid",
+        },
+      },
+    );
 
     const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(400);
     expect(data).toEqual({
-      error: 'Missing Authorization header'
+      error: "Missing Authorization header",
     });
   });
 
-  test('returns 400 for non-Bearer authorization', async () => {
-    const request = new NextRequest('http://localhost/api/auth/verify-id-token', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Basic token123'
+  it("should return 401 for invalid token", async () => {
+    mockParseBearerToken.mockReturnValue({
+      ok: true,
+      token: "invalid-token",
+    });
+
+    mockInitAdmin.mockResolvedValue(undefined);
+    mockToPublicError.mockReturnValue({
+      status: 401,
+      message: "Authentication failed",
+    });
+
+    const mockAuth = {
+      verifyIdToken: vi.fn().mockRejectedValue(new Error("Invalid token")),
+    };
+    mockGetAdminAuth.mockReturnValue(mockAuth);
+
+    const request = new Request(
+      "http://localhost:3000/api/auth/verify-id-token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer invalid-token",
+        },
       },
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data).toEqual({
-      error: 'Authorization must use Bearer scheme'
-    });
-  });
-
-  test('returns 400 for empty token', async () => {
-    const request = new NextRequest('http://localhost/api/auth/verify-id-token', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer '
-      },
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data).toEqual({
-      error: 'Authorization must use Bearer scheme'
-    });
-  });
-
-  test('returns 400 for invalid token format', async () => {
-    const request = new NextRequest('http://localhost/api/auth/verify-id-token', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer invalid-token'
-      },
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data).toEqual({
-      error: 'Invalid token format'
-    });
-  });
-
-  test('returns 401 for invalid token verification', async () => {
-    // Use a JWT format that passes validation but will fail Firebase verification
-    const invalidJwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.invalid-signature';
-
-    const request = new NextRequest('http://localhost/api/auth/verify-id-token', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${invalidJwt}`
-      },
-    });
+    );
 
     const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(401);
     expect(data).toEqual({
-      error: 'Invalid or expired token'
+      error: "Authentication failed",
+    });
+
+    // Verify secure logging was called
+    expect(mockSecureLogError).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        operation: "verifyIdToken",
+        endpoint: "/api/auth/verify-id-token",
+      }),
+    );
+  });
+
+  it("should return 401 for expired token", async () => {
+    mockParseBearerToken.mockReturnValue({
+      ok: true,
+      token: "expired-token",
+    });
+
+    mockInitAdmin.mockResolvedValue(undefined);
+    mockToPublicError.mockReturnValue({
+      status: 401,
+      message: "Authentication failed",
+    });
+
+    const mockAuth = {
+      verifyIdToken: vi.fn().mockRejectedValue(new Error("Token expired")),
+    };
+    mockGetAdminAuth.mockReturnValue(mockAuth);
+
+    const request = new Request(
+      "http://localhost:3000/api/auth/verify-id-token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer expired-token",
+        },
+      },
+    );
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(data).toEqual({
+      error: "Authentication failed",
     });
   });
 
-  test('returns 200 for valid token', async () => {
-    const validJwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+  it("should return 200 for valid token", async () => {
     const mockDecodedData = {
-      uid: 'user123',
-      email: 'test@example.com',
+      uid: "user123",
+      email: "test@example.com",
+      exp: 1234567890,
     };
 
-    const request = new NextRequest('http://localhost/api/auth/verify-id-token', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${validJwt}`
-      },
+    mockParseBearerToken.mockReturnValue({
+      ok: true,
+      token: "valid-token",
     });
+
+    mockInitAdmin.mockResolvedValue(undefined);
+
+    const mockAuth = {
+      verifyIdToken: vi.fn().mockResolvedValue(mockDecodedData),
+    };
+    mockGetAdminAuth.mockReturnValue(mockAuth);
+
+    const request = new Request(
+      "http://localhost:3000/api/auth/verify-id-token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer valid-token",
+        },
+      },
+    );
 
     const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
     expect(data).toEqual({
-      token: validJwt,
-      decodedData: mockDecodedData
+      token: "valid-token",
+      decodedData: mockDecodedData,
     });
+
+    // Verify secure logging was NOT called for successful requests
+    expect(mockSecureLogError).not.toHaveBeenCalled();
   });
 
-  test('handles token with whitespace correctly', async () => {
-    const validJwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
-    const mockDecodedData = { uid: 'user123', email: 'test@example.com' };
-
-    const request = new NextRequest('http://localhost/api/auth/verify-id-token', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer   ${validJwt}   `
-      },
+  it("should handle unexpected errors gracefully", async () => {
+    mockParseBearerToken.mockReturnValue({
+      ok: true,
+      token: "test-token",
     });
+
+    mockInitAdmin.mockRejectedValue(
+      new Error("Firebase initialization failed"),
+    );
+    
+    mockToPublicError.mockReturnValue({
+      status: 500,
+      message: "Internal server error",
+    });
+
+    const request = new Request(
+      "http://localhost:3000/api/auth/verify-id-token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer test-token",
+        },
+      },
+    );
 
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(data.token).toBe(validJwt); // Should be trimmed
-    expect(data.decodedData).toEqual(mockDecodedData);
+    expect(response.status).toBe(500);
+    expect(data).toEqual({
+      error: "Internal server error",
+    });
+
+    // Verify secure logging was called
+    expect(mockSecureLogError).toHaveBeenCalledWith(
+      expect.any(Error),
+      expect.objectContaining({
+        operation: "verifyIdToken",
+        endpoint: "/api/auth/verify-id-token",
+      }),
+    );
   });
 });

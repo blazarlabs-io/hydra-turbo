@@ -2,18 +2,17 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
 import { validateRequiredParam } from "@/lib/validation/http";
+import { secureLogError } from "@/lib/logging";
+import { toPublicError, CommonErrors } from "@/lib/errors";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     // Validate address parameter
     const addressResult = validateRequiredParam(searchParams, "address");
     if (!addressResult.ok) {
-      return NextResponse.json(
-        { error: addressResult.error },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: addressResult.error }, { status: 400 });
     }
 
     const address = addressResult.value;
@@ -43,10 +42,17 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error querying funds:", error);
+    // Log securely with context
+    secureLogError(error, {
+      operation: "queryFunds",
+      endpoint: "/api/hydra/query-funds",
+    });
+
+    // Return sanitized error response
+    const publicError = toPublicError(error, CommonErrors.INTERNAL_ERROR);
     return NextResponse.json(
-      { error: "Failed to query funds" },
-      { status: 500 },
+      { error: publicError.message },
+      { status: publicError.status },
     );
   }
 }

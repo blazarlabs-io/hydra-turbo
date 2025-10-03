@@ -1,6 +1,8 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
+import { secureLogError } from "@/lib/logging";
+import { toPublicError, CommonErrors } from "@/lib/errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,10 +23,17 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error depositing funds:", error);
+    // Log securely with context
+    secureLogError(error, {
+      operation: "deposit",
+      endpoint: "/api/hydra/deposit",
+    });
+
+    // Return sanitized error response
+    const publicError = toPublicError(error, CommonErrors.INTERNAL_ERROR);
     return NextResponse.json(
-      { error: "Failed to deposit funds" },
-      { status: 500 },
+      { error: publicError.message },
+      { status: publicError.status },
     );
   }
 }

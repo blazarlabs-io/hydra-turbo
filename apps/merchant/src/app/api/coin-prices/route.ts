@@ -1,6 +1,8 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
+import { secureLogError } from "@/lib/logging";
+import { toPublicError, CommonErrors } from "@/lib/errors";
 
 export async function GET() {
   try {
@@ -48,10 +50,17 @@ export async function GET() {
       wbtc: wbtcData.rate,
     });
   } catch (error) {
-    console.error("Error fetching coin prices:", error);
+    // Log securely with context
+    secureLogError(error, {
+      operation: "fetchCoinPrices",
+      endpoint: "/api/coin-prices",
+    });
+
+    // Return sanitized error response
+    const publicError = toPublicError(error, CommonErrors.INTERNAL_ERROR);
     return NextResponse.json(
-      { error: "Failed to fetch coin prices" },
-      { status: 500 },
+      { error: publicError.message },
+      { status: publicError.status },
     );
   }
 }
