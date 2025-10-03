@@ -45,10 +45,10 @@ function cspFromAllowlist(allow) {
 
   const connect = [self, ...allow.connect];
   const img = [self, data, blob, ...allow.img];
-  const script = [self, ...allow.script];
+  const script = [self, "'unsafe-inline'", ...allow.script]; // Temporary: allow inline scripts for Next.js
   const style = [self, "'unsafe-inline'", ...allow.style]; // Consider removing 'unsafe-inline' after auditing
   const font = [self, data, ...allow.font];
-  const frame = ["'none'", ...allow.frame]; // default deny; add needed frames explicitly
+  const frame = allow.frame.length > 0 ? [self, ...allow.frame] : ["'none'"]; // default deny; add needed frames explicitly
 
   const directives = [
     ["default-src", [self]],
