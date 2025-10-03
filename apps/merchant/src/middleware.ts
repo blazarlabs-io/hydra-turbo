@@ -65,7 +65,10 @@ export async function middleware(request: NextRequest) {
       console.log(
         `[MIDDLEWARE] Redirecting authenticated user from auth/root route to: ${redirectPath}`,
       );
-      return NextResponse.redirect(new URL(redirectPath, request.url));
+      // Use replace instead of redirect to prevent back button issues
+      const response = NextResponse.redirect(new URL(redirectPath, request.url));
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      return response;
     }
     // * IF TRIES ACCESSING TO A PRIVATE ROUTE, AND EMAIL IS NOT VERIFIED, REDIRECT TO VERIFY EMAIL PAGE
     if (onPrivateRoute && !email_verified) {
@@ -88,7 +91,9 @@ export async function middleware(request: NextRequest) {
     // * BEING NOT LOGGED IN
     // * IF TRIES ACCESSING ROOT PAGE, REDIRECT TO HOME
     if (pathname === "/") {
-      console.log(`[MIDDLEWARE] Redirecting unauthenticated user from root to /home`);
+      console.log(
+        `[MIDDLEWARE] Redirecting unauthenticated user from root to /home`,
+      );
       return NextResponse.redirect(new URL("/home", request.url));
     }
     // * IF TRIES ACCESSING PRIVATE ROUTES, VERIFY EMAIL PAGE, REDIRECT TO LOGIN
