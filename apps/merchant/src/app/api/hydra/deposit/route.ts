@@ -1,10 +1,12 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
+import { withAuth } from "@/lib/auth/api-auth";
+import { CheckIdTokenResp } from "@/features/authentication/types";
 import { env } from "@/lib/env";
 import { secureLogError } from "@/lib/logging";
 import { toPublicError, CommonErrors } from "@/lib/errors";
 
-export async function POST(request: NextRequest) {
+async function handleDeposit(request: NextRequest, user: CheckIdTokenResp) {
   try {
     const body = await request.json();
 
@@ -21,12 +23,22 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
+
+    // Log the operation for security auditing
+    secureLogError(new Error("Hydra deposit operation"), {
+      operation: "hydraDeposit",
+      userId: user.decodedData?.uid,
+      endpoint: "/api/hydra/deposit",
+      hasRequestBody: !!body,
+    });
+
     return NextResponse.json(data);
   } catch (error) {
     // Log securely with context
     secureLogError(error, {
-      operation: "deposit",
+      operation: "handleDeposit",
       endpoint: "/api/hydra/deposit",
+      userId: user.decodedData?.uid,
     });
 
     // Return sanitized error response
@@ -37,3 +49,6 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// Export the protected handler
+export const POST = withAuth(handleDeposit);

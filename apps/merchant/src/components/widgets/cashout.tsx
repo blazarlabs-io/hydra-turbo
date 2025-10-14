@@ -74,8 +74,12 @@ export const Cashout = ({ children }: CashoutProps) => {
   }
 
   const handleChashout = useCallback(async () => {
-    console.log("PRIVATE seedPhrase", current?.seedPhrase);
-    const seed = current?.seedPhrase as string; //"silver lucky olympic stairs gate invest merry purpose visit auction worth hurt fix injury squeeze fuel insect same spot future scare daughter virtual section";
+    // SECURITY: Never log seed phrases - removed console.log for security
+    const seed = current?.seedPhrase as string;
+    if (!seed) {
+      console.error("No seed phrase available for cashout");
+      return;
+    }
     const pk = getPrivateKey(seed as string);
 
     const funds: any[] = [];
@@ -92,14 +96,9 @@ export const Cashout = ({ children }: CashoutProps) => {
         ref: { hash: t.txHash, index: Number(t.outputIndex) },
       });
 
-      console.log("\n\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-      console.log("SERIALIZED INDEX", serialized_index);
-      console.log("TRANSACTION ID", transaction_id);
-      console.log("MESSAGE TO SIGN", msgToSign);
-      console.log("SIGNATURE", signature);
-      // console.log("PUBLIC KEY", Buffer.to(pk.to_public().to_raw_bytes()));
-      console.log("FUND", funds);
-      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n\n");
+      // SECURITY: Removed detailed logging of sensitive transaction data
+      // Only log non-sensitive information for debugging
+      console.log("Transaction processing completed for:", transaction_id);
     });
 
     const newCashout = {

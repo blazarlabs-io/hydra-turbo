@@ -37,7 +37,7 @@ Context: A User has any native assets and wants to start using the protocol
 - If the user already had a pending deposit in L1, the generated transaction will consume that UTxO as well, merging everything into one UTxO
 - The backend returns the transaction CBOR, which the frontend/user wallet can sign and submit (4)
 
-![UserDepositDiagram](img/diagram-user-deposit.png)
+![UserDepositDiagram](/img/diagram-user-deposit.svg)
 
 ### Use case: Open the Hydra Head
 
@@ -54,7 +54,7 @@ Context: An Admin wants to collect User deposits and open the hydra head
 - The hydra node builds and submits the Commit transaction (9&10)
 - The hydra node builds and submits the CollectCom transaction
 
-![OpenHeadDiagram](img/diagram-open-head.png)
+![OpenHeadDiagram](/img/diagram-open-head.svg)
 
 ### Use case: Query Funds
 
@@ -65,7 +65,7 @@ Context: A User or Merchant wants to know how much funds they have in the protoc
 - The backend queries L1 and gets a list of user deposit UTxOs (3)
 - The backend returns the total assets in L1 and L2, along with the UTxOs in each layer (4)
 
-![OpenHeadDiagram](img/diagram-query-funds.png)
+![QueryFundsDiagram](img/diagram-query-funds.svg)
 
 ### Use case: Pay merchant
 
@@ -78,7 +78,7 @@ Context: A User wants to use their available funds to pay a Merchant
 - The hydra node submits the transaction
 - The backend returns a success or error message
 
-![PayMerchantDiagram](img/diagram-pay-merchant.png)
+![PayMerchantDiagram](img/diagram-pay-merchant.svg)
 
 ### Use case: Withdraw User funds
 
@@ -91,7 +91,7 @@ Context: A User wants to withdraw assets from the protocol
 - The hydra node responds with the confirmation of the transaction
 - The backend returns the confirmation and the updated User Funds
 
-![WithdrawFundsDiagram](img/diagram-withdraw-user-funds.png)
+![WithdrawFundsDiagram](img/diagram-withdraw-user-funds.svg)
 
 ### Use case: Close the Hydra Head
 
@@ -106,7 +106,7 @@ Context: An Admin wants to close the hydra head for the day, preparing for the o
 - The hydra node builds and submits the L1 transaction to fan-out the head, opening new user funds UTxOs and sending merchant funds to their address
 - The backend returns a success or error message
 
-![CloseHeadDiagram](img/diagram-close-head.png)
+![CloseHeadDiagram](img/diagram-close-head.svg)
 
 ## Technical Details
 
@@ -163,29 +163,29 @@ While all transactions can technically occur in L1 and L2, we have added an indi
 
 ### User Deposit
 
-![txUserDeposit](img/tx-user-deposit.png)
+![txUserDeposit](img/tx-user-deposit.svg)
 
-![txUserDepositMore](img/tx-user-deposit-more.png)
+![txUserDepositMore](img/tx-user-deposit-more.svg)
 
 ### Commit Funds
 
-![txCommitFunds](img/tx-open-head.png)
+![txCommitFunds](img/tx-open-head.svg)
 
 ### Pay Merchant
 
-![txPayMerchant](img/tx-pay-merchant.png)
+![txPayMerchant](img/tx-pay-merchant.svg)
 
-![txPayMerchantAlt](img/tx-pay-merchant-alt.png)
+![txPayMerchantAlt](img/tx-pay-merchant-alt.svg)
 
 ### User Withdraw
 
-![txUserWithdraw](img/tx-withdraw-user-funds.png)
+![txUserWithdraw](img/tx-withdraw-user-funds.svg)
 
-![txUserWithdrawAll](img/tx-withdraw-user-funds-all.png)
+![txUserWithdrawAll](img/tx-withdraw-user-funds-all.svg)
 
 ### Merge Funds
 
-![txMergeFunds](img/tx-merge-funds.png)
+![txMergeFunds](img/tx-merge-funds.svg)
 
 ## Validations
 

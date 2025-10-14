@@ -38,15 +38,38 @@ function readAllowlist() {
 
 function cspFromAllowlist(allow) {
   // Base policy: strict defaults; selectively widen via allowlist.
-  // Avoid 'unsafe-eval'. Allow 'unsafe-inline' in style only if absolutely necessary.
+  // Security: Use nonces for inline scripts while maintaining XSS protection.
   const self = "'self'";
   const blob = "blob:";
   const data = "data:";
 
   const connect = [self, ...allow.connect];
   const img = [self, data, blob, ...allow.img];
-  const script = [self, "'unsafe-inline'", "'unsafe-eval'", ...allow.script]; // Temporary: allow inline scripts and eval for Next.js/webpack
-  const style = [self, "'unsafe-inline'", ...allow.style]; // Consider removing 'unsafe-inline' after auditing
+  // Development vs Production CSP strategy
+  let script;
+  if (isProd) {
+    // Production: Use hash-based approach for maximum security
+    script = [
+      self,
+      "'sha256-YXuzbY0IAah5ncUXeyw+avVY43cpRrhE5pgdIC1Cfrk='", // Next.js hydration script
+      "'sha256-7ZRMnh3+KlZx7THNtiWwrMT9BAkq72asxeWPGm79aKA='", // Next.js inline script
+      "'sha256-Ed73WUVjgjm9cHXqw0nWKDoo3iqr79byfdjduR8oc5Q='", // Next.js inline script
+      "'sha256-uohHtEIWxe56O7TGKZ4tCjtT+92U9xDtNVf/ULUT8Go='", // Next.js inline script
+      "'sha256-JWinnvoTs3rwYROR//W4SX1QBZzt3eCtOCo5szxoOSI='", // Next.js inline script
+      "'sha256-kDNQb008n0j2msIRIpFu0oEDur3FW8MPJxOjl0ll95g='", // Next.js inline script
+      "'sha256-dlCUqzHwp/ax2393CSFgOGvzyl/nbHk1zP+MMDMj/3s='", // Next.js inline script
+      ...allow.script,
+    ]; // Production: hash-based inline scripts for maximum security
+  } else {
+    // Development: Allow unsafe-inline for easier development (Next.js generates many dynamic scripts)
+    script = [
+      self,
+      "'unsafe-inline'", // Development: allow all inline scripts
+      "'unsafe-eval'", // Development: allow eval for hot reloading
+      ...allow.script,
+    ]; // Development: permissive CSP for easier development
+  }
+  const style = [self, ...allow.style]; // Secure: no unsafe-inline for styles
   const font = [self, data, ...allow.font];
   const frame = allow.frame.length > 0 ? [self, ...allow.frame] : ["'none'"]; // default deny; add needed frames explicitly
 
@@ -111,10 +134,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    // Enable async WASM loading (recommended)
-    // wasm: true, // This option is not valid in Next.js 15
-  },
+  // Move serverComponentsExternalPackages to the correct location
+  serverExternalPackages: [],
   async headers() {
     // Read allowlist dynamically to ensure it's fresh in development
     const allow = readAllowlist();
