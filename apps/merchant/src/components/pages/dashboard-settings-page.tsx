@@ -37,7 +37,7 @@ export const DashboardSettingsPage = () => {
 
   const handleTextAreChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSeedPhrase(e.target.value);
-    console.log(e.target.value);
+    // SECURITY: Never log seed phrases - removed console.log for security
   };
 
   const handleSaveSeedPhrase = async () => {
@@ -59,7 +59,7 @@ export const DashboardSettingsPage = () => {
   const handleCreatePrivateKey = async () => {
     const seedPhraseArr = splitToArray(seedPhrase);
     const privateKey = resolvePrivateKey(seedPhraseArr);
-    console.log("PRIVATE KEY", privateKey);
+    // SECURITY: Never log private keys - removed console.log for security
     setPrivateKey(() => privateKey);
     const updateRes = await db.user.update(user?.uid, {
       wallet: {
@@ -67,16 +67,16 @@ export const DashboardSettingsPage = () => {
         privateKey: privateKey,
       },
     });
-    console.log("UPDATE USER", updateRes);
+    // SECURITY: Never log sensitive user data - removed console.log for security
     setCreating(() => false);
   };
 
   useEffect(() => {
     if (current) {
-      console.log("CURRENT", current);
+      // SECURITY: Never log sensitive wallet data - removed console.log for security
       setSeedPhrase(current.seedPhrase);
       if (current && current.privateKey && current.privateKey !== undefined) {
-        console.log("PRIVATE KEY", current.privateKey);
+        // SECURITY: Never log private keys - removed console.log for security
         setPrivateKey(() => current.privateKey);
       } else {
         setPrivateKey(() => null);

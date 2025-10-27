@@ -1,10 +1,10 @@
 export const base64ToImageFile = (base64: string, fileName: string): File => {
   // Split the base64 string to get the mime type and the actual data
   const [mimeInfo, data] = base64.split(",");
-  const mimeType = mimeInfo.match(/:(.*?);/)?.[1] || "image/png";
+  const mimeType = mimeInfo?.match(/:(.*?);/)?.[1] || "image/png";
 
   // Decode base64 data to binary
-  const binary = atob(data);
+  const binary = atob(data || "");
   const array = new Uint8Array(binary.length);
 
   for (let i = 0; i < binary.length; i++) {

@@ -11,6 +11,7 @@ import { useCallback, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Control, useForm } from "react-hook-form";
 import { z } from "zod";
+import { usePublicConfig } from "@/hooks/use-public-config";
 import { Button } from "@repo/ui/components/ui/button";
 import { Form } from "@repo/ui/components/ui/form";
 import { SignUpInputField } from "../fields/signup-input-field";
@@ -33,6 +34,7 @@ import { setCookie } from "cookies-next";
 import { sendVerificationEmailService } from "../../services";
 export const SignUpForm = () => {
   // * HOOKS
+  const { config } = usePublicConfig();
   const form = useForm<signUpFormProps>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
@@ -147,14 +149,18 @@ export const SignUpForm = () => {
               formControl={form.control as Control<signUpFormProps>}
             />
             <div className="flex w-full items-center justify-center">
-              <ReCAPTCHA
-                sitekey={
-                  (process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY as string) || ""
-                }
-                ref={recaptchaRef}
-                onChange={handleChange}
-                onExpired={handleExpired}
-              />
+              {config?.captcha?.siteKey ? (
+                <ReCAPTCHA
+                  sitekey={config.captcha.siteKey}
+                  ref={recaptchaRef}
+                  onChange={handleChange}
+                  onExpired={handleExpired}
+                />
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  reCAPTCHA not configured
+                </div>
+              )}
             </div>
             <Button
               disabled={!isVerified || isProcessing || !form.formState.isValid}

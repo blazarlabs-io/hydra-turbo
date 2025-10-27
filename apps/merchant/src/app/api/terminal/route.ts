@@ -1,6 +1,5 @@
-// import { SerialPort } from "serialport";
-import bleno from "bleno";
-import * as BeaconScanner from "node-beacon-scanner";
+// Dynamic import to avoid bundling issues
+let BeaconScanner: any = null;
 
 export async function POST(req: Request) {
   if (req.method !== "POST") {
@@ -20,10 +19,14 @@ export async function POST(req: Request) {
   }
 
   try {
-    // const port = new SerialPort({ path: "/dev/ttyUSB0", baudRate: 115200 }); // Replace with your port
+    // Only import on server-side when needed
+    if (!BeaconScanner) {
+      BeaconScanner = await import("node-beacon-scanner");
+    }
+
     console.log("HELLO WORLD Scanning...");
 
-    const scanner = new BeaconScanner();
+    const scanner = new BeaconScanner.default();
 
     scanner
       .startScan()
@@ -54,8 +57,15 @@ export async function POST(req: Request) {
       });
     }
   } catch (error) {
-    return new Response(JSON.stringify({ message: "Internal Server Error" }), {
-      status: 500,
-    });
+    console.error("Bluetooth scanning error:", error);
+    return new Response(
+      JSON.stringify({
+        message: "Bluetooth scanning not available on this platform",
+        error: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+      },
+    );
   }
 }

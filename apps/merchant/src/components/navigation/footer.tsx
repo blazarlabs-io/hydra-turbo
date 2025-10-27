@@ -10,13 +10,13 @@ export const Footer = () => {
 
   return (
     <>
-      <div className="flex w-full flex-col items-center justify-center gap-2">
+      <div className="flex flex-col items-center justify-center w-full gap-2">
         <Separator className="w-full" />
-        <footer className="mt-4 flex h-16 w-full items-start justify-between gap-48 px-8">
-          <div className="-mt-2 flex items-center gap-3">
-            <Link href="/home" className="hidden xl:flex" prefetch={false}>
-              <Logo className="" />
-            </Link>
+        <footer className="flex items-start justify-between w-full h-16 gap-48 px-8 mt-4">
+          <div className="flex items-center gap-3 -mt-2">
+            {/* <Link href="/home" className="hidden xl:flex" prefetch={false}> */}
+            <Logo className="" />
+            {/* </Link> */}
             <span className="mt-2 text-xs">
               © 2023 Tracecork. All rights reserved.
             </span>

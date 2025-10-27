@@ -4,7 +4,7 @@ import {
   checkActionCode,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { use, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/auth-provider";
 import { auth } from "@/lib/firebase/client";
 import { ConfirmEmailParamsType } from "../types";

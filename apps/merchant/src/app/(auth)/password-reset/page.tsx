@@ -1,4 +1,6 @@
 import { PasswordResetPage } from "@/features/authentication";
+// Force dynamic rendering to prevent Cardano library issues during build
+export const dynamic = 'force-dynamic';
 import { ConfirmEmailParamsType } from "@/features/authentication/";
 
 type Params = Promise<{ mode: string }>;

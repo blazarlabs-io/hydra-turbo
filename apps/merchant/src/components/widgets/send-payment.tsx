@@ -35,7 +35,7 @@ import {
   MapAssetsT,
   to,
   valueTuplesToAssets,
-} from "~/src/utils/wallet";
+} from "~/src/utils/wallet-client";
 import { db } from "~/src/lib/firebase/services/db";
 import { cn } from "~/src/utils/shadcn";
 
@@ -76,7 +76,7 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
     try {
       // * 1. We need to get the user's funds from the L2 wallet
       const fundsRes = await fetch(
-        `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/query-funds?address=${
+        `/api/hydra/query-funds?address=${
           (localStorage.getItem("wallet") as string) || current?.address
         }`,
         {
@@ -160,16 +160,13 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
       console.log("\n\n[PAYLOAD]", sigObj, "\n\n");
 
       // * 3. We send the payment to the merchant viia tx-pipe API
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/pay-merchant`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(sigObj),
+      const res = await fetch(`/api/hydra/pay-merchant`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(sigObj),
+      });
 
       // * 4. wait for a couple of seconds and set trigger in database
       setTimeout(async () => {
@@ -211,7 +208,7 @@ export const SendPayment = ({ children }: ReceivePaymentProps) => {
       />
       <Sheet>
         <SheetTrigger asChild>
-          <Button className="min-w-[88px]">{children}</Button>
+          <Button className="min-w-[88px]">{String(children)}</Button>
         </SheetTrigger>
         <SheetContent
           side="bottom"

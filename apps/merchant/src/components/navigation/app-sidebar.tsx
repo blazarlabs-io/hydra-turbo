@@ -1,8 +1,7 @@
 "use client";
 
 import { Logo } from "@/components/assets/logo";
-import { useAuth } from "~/src/features/authentication/context/auth-provider";
-import { auth } from "@/lib/firebase/client";
+import { useWallet } from "@/context/wallet";
 import "@meshsdk/react/styles.css";
 import {
   Avatar,
@@ -38,14 +37,13 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@repo/ui/components/ui/sidebar";
-import { signOut } from "firebase/auth";
 import { ChevronRight, History, Home, LogOut, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "~/src/features/authentication/context/auth-provider";
+import { TerminalSettings } from "../widgets/terminal-settings";
 import { WalletConnect } from "../widgets/wallet-connect";
-import { useWallet } from "@/context/wallet";
-import { Icon } from "@iconify/react";
 
 // Menu items.
 const dataTemplate = {
@@ -87,6 +85,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
 
   // * STATES
   const [data, setData] = useState<any>(dataTemplate);
+  const [open, setOpen] = useState<boolean>(false);
 
   // * HANDLERS
 
@@ -201,15 +200,11 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           <div className="flex items-center justify-end w-full h-full gap-4 pr-4">
             {user && (
               <>
-                <div
-                  style={{
-                    borderColor: terminalConnected ? "#ace650" : "#2e2d2d",
-                    color: terminalConnected ? "#ace650" : "#2e2d2d",
-                  }}
-                  className="flex items-center justify-center p-2 border rounded-lg border-sidebar-primary-foreground"
-                >
-                  <Icon icon="lucide:nfc" width="20" height="20" />
-                </div>
+                <TerminalSettings
+                  open={open}
+                  setOpen={setOpen}
+                  terminalConnected={terminalConnected}
+                />
 
                 <WalletConnect />
 

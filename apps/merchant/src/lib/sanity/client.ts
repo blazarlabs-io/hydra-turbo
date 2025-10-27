@@ -1,12 +1,13 @@
-/* eslint-disable turbo/no-undeclared-env-vars */
+import "server-only";
 import { createClient } from "@sanity/client";
+import { sanityConfig } from "@/lib/env";
 
 export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID as string,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET as string,
+  projectId: sanityConfig.projectId,
+  dataset: sanityConfig.dataset,
   useCdn: true, // set to `false` to bypass the edge cache
   apiVersion: "2023-05-03", // use current date (YYYY-MM-DD) to target the latest API version
-  token: process.env.NEXT_PUBLIC_SANITY_TOKEN as string, // Needed for certain operations like updating content or accessing previewDrafts perspective
+  token: sanityConfig.token, // Needed for certain operations like updating content or accessing previewDrafts perspective
 });
 
 export const getSystemVariables = async () => {

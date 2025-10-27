@@ -1,4 +1,4 @@
-import { initAdmin } from "@/lib/firebase/admin";
+import { initAdmin, getAdminAuth } from "@/lib/firebase/admin";
 
 export async function POST(req: Request) {
   if (req.method !== "POST") {
@@ -12,8 +12,9 @@ export async function POST(req: Request) {
   const { email } = data;
 
   try {
-    const app = await initAdmin();
-    const res = await app.auth().getUserByEmail(email);
+    await initAdmin();
+    const auth = getAdminAuth();
+    const res = await auth.getUserByEmail(email);
 
     return new Response(
       JSON.stringify({

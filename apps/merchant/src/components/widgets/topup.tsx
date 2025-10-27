@@ -143,16 +143,13 @@ export const Topup = ({ children }: TopupProps) => {
       // console.info("[RAW DECIMALS]", rawDecimals);
       // console.info("[PAYLOAD]", payload, "\n\n");
 
-      const topUpRes = await fetch(
-        `${process.env.NEXT_PUBLIC_HYDRA_API_URL as string}/deposit`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
+      const topUpRes = await fetch(`/api/hydra/deposit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
       if (topUpRes.ok) {
         try {
@@ -199,7 +196,7 @@ export const Topup = ({ children }: TopupProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button className="min-w-[88px]">{children}</Button>
+        <Button className="min-w-[88px]">{String(children)}</Button>
       </SheetTrigger>
       <SheetContent
         side="bottom"

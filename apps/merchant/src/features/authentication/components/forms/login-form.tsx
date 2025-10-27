@@ -13,6 +13,7 @@ import { useCallback, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { usePublicConfig } from "@/hooks/use-public-config";
 import { Button } from "@repo/ui/components/ui/button";
 import { Form } from "@repo/ui/components/ui/form";
 import { AuthInputField } from "../fields/auth-input-field";
@@ -34,6 +35,7 @@ import { sendVerificationEmailService } from "../../services";
 export const LoginForm = () => {
   // * FORM HOOKS
   const router = useRouter();
+  const { config } = usePublicConfig();
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -182,14 +184,18 @@ export const LoginForm = () => {
             </button>
           </div>
           <div className="flex w-full items-center justify-center">
-            <ReCAPTCHA
-              sitekey={
-                (process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY as string) || ""
-              }
-              ref={recaptchaRef}
-              onChange={handleChange}
-              onExpired={handleExpired}
-            />
+            {config?.captcha?.siteKey ? (
+              <ReCAPTCHA
+                sitekey={config.captcha.siteKey}
+                ref={recaptchaRef}
+                onChange={handleChange}
+                onExpired={handleExpired}
+              />
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                reCAPTCHA not configured
+              </div>
+            )}
           </div>
           <Button
             disabled={!isVerified || isProcessing || !form.formState.isValid}

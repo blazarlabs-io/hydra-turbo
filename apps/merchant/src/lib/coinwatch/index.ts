@@ -1,41 +1,13 @@
+"use client";
+
 export const getAdaToUsd = async () => {
-  const response = await fetch(
-    new Request("https://api.livecoinwatch.com/coins/single"),
-    {
-      method: "POST",
-      headers: new Headers({
-        "content-type": "application/json",
-        "x-api-key": process.env.NEXT_PUBLIC_LIVE_COIN_WATCH_API_KEY as string,
-      }),
-      body: JSON.stringify({
-        currency: "USD",
-        code: "ADA",
-        meta: true,
-      }),
-    },
-  );
+  const response = await fetch("/api/coin-prices");
   const data = await response.json();
-  console.log(data);
-  return data.rate;
+  return data.ada;
 };
 
 export const getWbtcToUsd = async () => {
-  const response = await fetch(
-    new Request("https://api.livecoinwatch.com/coins/single"),
-    {
-      method: "POST",
-      headers: new Headers({
-        "content-type": "application/json",
-        "x-api-key": process.env.NEXT_PUBLIC_LIVE_COIN_WATCH_API_KEY as string,
-      }),
-      body: JSON.stringify({
-        currency: "USD",
-        code: "WBTC",
-        meta: true,
-      }),
-    },
-  );
+  const response = await fetch("/api/coin-prices");
   const data = await response.json();
-  console.log(data);
-  return data.rate;
+  return data.wbtc;
 };
