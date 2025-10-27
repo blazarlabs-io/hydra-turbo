@@ -37,7 +37,8 @@
   "script": [
     "https://maps.googleapis.com",
     "https://www.google.com",
-    "https://www.gstatic.com"
+    "https://www.gstatic.com",
+    "https://apis.google.com"
   ],
   "style": ["https://fonts.googleapis.com", "'unsafe-inline'"],
   "font": ["https://fonts.gstatic.com", "data:"],

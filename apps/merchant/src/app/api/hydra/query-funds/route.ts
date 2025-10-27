@@ -16,30 +16,38 @@ export async function GET(request: NextRequest) {
     }
 
     const address = addressResult.value;
+    const queryUrl = `${env.HYDRA_API_URL}/query-funds?address=${address}`;
+
+    console.log("\naddress", address, address.length);
+    console.log("env.HYDRA_API_URL", queryUrl, "\n");
 
     // Additional validation for address format (basic check)
-    if (address.length < 10 || address.length > 100) {
-      return NextResponse.json(
-        { error: "Invalid address format" },
-        { status: 400 },
-      );
-    }
+    // if (address.length < 10 || address.length > 100) {
+    //   return NextResponse.json(
+    //     { error: "Invalid address format" },
+    //     { status: 400 },
+    //   );
+    // }
 
-    const response = await fetch(
-      `${env.HYDRA_API_URL}/query-funds?address=${address}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const response = await fetch(queryUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+    });
 
     if (!response.ok) {
       throw new Error(`Hydra API responded with status: ${response.status}`);
     }
 
     const data = await response.json();
+
+    console.log("env.HYDRA_API_URL", env.HYDRA_API_URL);
+    console.log("data", data);
+    console.log("data.fundsInL1", data.fundsInL1);
+    console.log("data.fundsInL2", data.fundsInL2);
+    console.log("data.totalInL1", data.totalInL1);
+    console.log("data.totalInL2", data.totalInL2);
     return NextResponse.json(data);
   } catch (error) {
     // Log securely with context

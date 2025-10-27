@@ -170,68 +170,40 @@ export const WalletProvider = ({
     setAvailableAssets(assets);
   };
 
-  const onConfirmation = useCallback((txHash: string) => {
-    setIsConfirming(() => true);
-    blockfrost.onTxConfirmed(txHash, async () => {
-      console.log(
-        "\n\n[TX-XONFIRMED]",
-        wallet,
-        localStorage.getItem("wallet") as string,
-        "\n\n",
-      );
-
-      const balanceRes = await fetch(
-        `/api/hydra/query-funds?address=${
-          (localStorage.getItem("wallet") as string) || address
-        }`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      setIsConfirming(() => false);
-
-      const tmp = await balanceRes.json();
-      const { adaBalance, usdmBalance, wbtcBalance } =
-        await updateSetAccounts(tmp);
-
-      setMaxToSpend(
-        () => (adaBalance || 0) + (usdmBalance || 0 + wbtcBalance || 0),
-      );
-    });
-  }, []);
-
   // * UPDATE SET ACCOUNTS
   const updateSetAccounts = useCallback(
     async (tmp: any): Promise<any> => {
       return new Promise(async (resolve, reject) => {
-        const adaBalanceL1 =
-          tmp.totalInL1[
-            availableAssets.find((a) => a.name === "ada")?.assetUnit as string
-          ];
-        const adaBalanceL2 =
-          tmp.totalInL2[
-            availableAssets.find((a) => a.name === "ada")?.assetUnit as string
-          ];
-        const usdmBalanceL1 =
-          tmp.totalInL1[
-            availableAssets.find((a) => a.name === "usdm")?.assetUnit as string
-          ];
-        const usdmBalanceL2 =
-          tmp.totalInL2[
-            availableAssets.find((a) => a.name === "usdm")?.assetUnit as string
-          ];
-        const wbtcBalanceL1 =
-          tmp.totalInL1[
-            availableAssets.find((a) => a.name === "wbtc")?.assetUnit as string
-          ];
-        const wbtcBalanceL2 =
-          tmp.totalInL2[
-            availableAssets.find((a) => a.name === "wbtc")?.assetUnit as string
-          ];
+        // Validate response structure
+        if (!tmp || typeof tmp !== "object") {
+          console.error(
+            "Invalid API response: expected object, got",
+            typeof tmp,
+          );
+          resolve({ adaBalance: 0, usdmBalance: 0, wbtcBalance: 0 });
+          return;
+        }
+
+        // Ensure totalInL1 and totalInL2 exist, default to empty objects
+        const totalInL1 = tmp.totalInL1 || {};
+        const totalInL2 = tmp.totalInL2 || {};
+
+        // Get asset units with fallback
+        const adaAssetUnit =
+          availableAssets.find((a) => a.name === "ada")?.assetUnit ||
+          "lovelace";
+        const usdmAssetUnit =
+          availableAssets.find((a) => a.name === "usdm")?.assetUnit || "";
+        const wbtcAssetUnit =
+          availableAssets.find((a) => a.name === "wbtc")?.assetUnit || "";
+
+        // Safely extract balances with proper null/undefined handling
+        const adaBalanceL1 = totalInL1[adaAssetUnit] || 0;
+        const adaBalanceL2 = totalInL2[adaAssetUnit] || 0;
+        const usdmBalanceL1 = totalInL1[usdmAssetUnit] || 0;
+        const usdmBalanceL2 = totalInL2[usdmAssetUnit] || 0;
+        const wbtcBalanceL1 = totalInL1[wbtcAssetUnit] || 0;
+        const wbtcBalanceL2 = totalInL2[wbtcAssetUnit] || 0;
 
         const adaBalance = (adaBalanceL1 || 0) + (adaBalanceL2 || 0);
         const usdmBalance = (usdmBalanceL1 || 0) + (usdmBalanceL2 || 0);
@@ -322,14 +294,70 @@ export const WalletProvider = ({
             },
           ];
           setAccounts(() => newAccounts);
-          return { adaBalance, usdmBalance, wbtcBalance };
+          resolve({ adaBalance, usdmBalance, wbtcBalance });
         } catch (error) {
-          console.log(error);
-          return null;
+          console.error("Error updating accounts:", error);
+          // Return zero balances on error rather than null
+          resolve({ adaBalance: 0, usdmBalance: 0, wbtcBalance: 0 });
         }
       });
     },
-    [wallet, current, address, browserWallets],
+    [wallet, current, address, browserWallets, availableAssets],
+  );
+
+  const onConfirmation = useCallback(
+    (txHash: string) => {
+      setIsConfirming(() => true);
+      blockfrost.onTxConfirmed(txHash, async () => {
+        try {
+          console.log(
+            "\n\n[TX-XONFIRMED]",
+            wallet,
+            localStorage.getItem("wallet") as string,
+            "\n\n",
+          );
+
+          const walletAddress =
+            (localStorage.getItem("wallet") as string) || address;
+
+          // Validate address before making API call
+          if (!walletAddress || walletAddress.length < 10) {
+            console.error("Invalid wallet address for balance query");
+            setIsConfirming(() => false);
+            return;
+          }
+
+          const balanceRes = await fetch(
+            `/api/hydra/query-funds?address=${walletAddress}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            },
+          );
+
+          if (!balanceRes.ok) {
+            console.error("Balance query failed:", balanceRes.status);
+            setIsConfirming(() => false);
+            return;
+          }
+
+          const tmp = await balanceRes.json();
+          const { adaBalance, usdmBalance, wbtcBalance } =
+            await updateSetAccounts(tmp);
+
+          setMaxToSpend(
+            () => (adaBalance || 0) + (usdmBalance || 0 + wbtcBalance || 0),
+          );
+        } catch (error) {
+          console.error("Error in onConfirmation:", error);
+        } finally {
+          setIsConfirming(() => false);
+        }
+      });
+    },
+    [address, updateSetAccounts, wallet],
   );
 
   // * CONNECT
@@ -402,10 +430,17 @@ export const WalletProvider = ({
             // * If user exists, get user data.
             // console.log("user exists");
 
+            const walletAddress =
+              (localStorage.getItem("wallet") as string) || address;
+
+            // Validate address before making API call
+            if (!walletAddress || walletAddress.length < 10) {
+              console.error("Invalid wallet address for balance query");
+              return;
+            }
+
             const balanceRes = await fetch(
-              `/api/hydra/query-funds?address=${
-                (localStorage.getItem("wallet") as string) || address
-              }`,
+              `/api/hydra/query-funds?address=${walletAddress}`,
               {
                 method: "GET",
                 headers: {
@@ -414,10 +449,15 @@ export const WalletProvider = ({
               },
             );
 
+            if (!balanceRes.ok) {
+              console.error("Balance query failed:", balanceRes.status);
+              return;
+            }
+
             const tmp = await balanceRes.json();
-            const txs1 = tmp.fundsInL1;
-            const balanceL1 = tmp.totalInL1;
-            const balanceL2 = tmp.totalInL2;
+            const txs1 = tmp.fundsInL1 || [];
+            const balanceL1 = tmp.totalInL1 || {};
+            const balanceL2 = tmp.totalInL2 || {};
 
             console.log(
               "\n\n",
@@ -545,6 +585,14 @@ export const WalletProvider = ({
       })
         .then(async (res) => {
           const data = await res.json();
+
+          // Validate address before making API call
+          if (!address || address.length < 10) {
+            console.error("Invalid wallet address for balance query");
+            setLoading(() => false);
+            return;
+          }
+
           const balanceRes = await fetch(
             `/api/hydra/query-funds?address=${address}`,
             {
@@ -555,13 +603,19 @@ export const WalletProvider = ({
             },
           );
 
+          if (!balanceRes.ok) {
+            console.error("Balance query failed:", balanceRes.status);
+            setLoading(() => false);
+            return;
+          }
+
           setLoading(() => false);
           const tmp = await balanceRes.json();
           const { adaBalance, usdmBalance, wbtcBalance } =
             await updateSetAccounts(tmp);
         })
         .catch((err) => {
-          console.log(err);
+          console.error("Error fetching balance:", err);
           setLoading(() => false);
         });
     }
@@ -587,6 +641,13 @@ export const WalletProvider = ({
 
             const walletAddress =
               (localStorage.getItem("wallet") as string) || address;
+
+            // Validate address before making API call
+            if (!walletAddress || walletAddress.length < 10) {
+              console.error("Invalid wallet address for balance query");
+              return;
+            }
+
             const fullUrl = `/api/hydra/query-funds?address=${walletAddress}`;
 
             console.log("Fetching balance from:", fullUrl);
@@ -655,6 +716,8 @@ export const WalletProvider = ({
   };
 
   return (
-    <WalletContext.Provider value={value}>{children as any}</WalletContext.Provider>
+    <WalletContext.Provider value={value}>
+      {children as React.ReactNode}
+    </WalletContext.Provider>
   );
 };
